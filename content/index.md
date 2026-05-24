@@ -1,6 +1,7 @@
 ---
-title: ㅣLegion Archive
+title: Legion Archive
 ---
+
 
 안녕하세요, Ted입니다.
 
