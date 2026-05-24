@@ -1,5 +1,5 @@
 ---
-title: Ted
+title: ㅣLegion Archive
 ---
 
 안녕하세요, Ted입니다.
