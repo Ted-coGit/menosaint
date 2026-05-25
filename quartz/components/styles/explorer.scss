@@ -129,6 +129,9 @@ button.desktop-explorer {
     & li > a {
       color: var(--dark);
       opacity: 0.75;
+      font-size: 0.85rem;
+      font-weight: $normalWeight;
+      font-family: var(--headerFont);
       pointer-events: all;
 
       &.active {
