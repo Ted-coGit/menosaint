@@ -113,6 +113,8 @@ a {
       padding: 0;
     }
     &.tag-link {
+      font-size: 0.75rem;
+      font-weight: $normalWeight;
       &::before {
         content: "#";
       }
