@@ -14,7 +14,8 @@ export const site = {
   lang: "ko",
   description:
     "조직과 사람, 시스템과 흐름에 관한 기록. 사고의 과정을 남기는 공간입니다.",
-  ogImage: "/images/og-default.png",
+  // TODO: 전용 OG 이미지 제작. 지금은 아바타로 대체한다
+  ogImage: "/images/avatar.jpg",
 } as const
 
 export const profile = {
@@ -27,7 +28,7 @@ export const profile = {
    */
   role: env.PUBLIC_ROLE ?? "AI-enabled Operator",
   tagline: "조직과 사람, 시스템과 흐름에 관심이 많습니다.",
-  avatar: env.PUBLIC_AVATAR ?? "/images/avatar.svg",
+  avatar: env.PUBLIC_AVATAR ?? "/images/avatar.jpg",
   email: env.PUBLIC_EMAIL ?? "ted@menosaint.xyz",
 } as const
 
@@ -43,8 +44,9 @@ export const socials = [
  * `sub: true`면 상위 항목에 딸린 하위 링크로 들여쓰기 렌더링한다.
  *
  * 구성 근거: 이 사이트는 구직용 포트폴리오가 아니라 사고 기록과 경험 저장소다.
- * 그래서 이력 대신 Notes / Projects / Life / Now를 중심축으로 둔다.
- * Experience는 조직을 가린 추상화 형태로만 남긴다.
+ * 중심축은 Knowledge다. "무엇을 잘한다"는 역량 선언(Skills)이 아니라
+ * "무엇을 알아가고 있는가"를 글의 축적으로 보여준다.
+ * Experience는 조직을 가린 추상화 형태로만 남기고, Projects와 Life가 그 뒤를 받친다.
  */
 export type NavItem = {
   label: string
@@ -55,10 +57,10 @@ export type NavItem = {
 
 export const nav: NavItem[] = [
   { label: "About", anchor: "about" },
+  { label: "Knowledge", anchor: "knowledge" },
+  { label: "노트 전체", href: "/notes/", sub: true },
   { label: "Now", anchor: "now" },
   { label: "Experience", anchor: "experience" },
-  { label: "Skills", anchor: "skills" },
-  { label: "노트 전체", href: "/notes/", sub: true },
   { label: "Projects", anchor: "projects" },
   { label: "프로젝트 전체", href: "/projects/", sub: true },
   { label: "Life", anchor: "life" },

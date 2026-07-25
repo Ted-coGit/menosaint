@@ -14,7 +14,7 @@ heeho.net의 구조를 menosaint에 이식한다. 단순 테마 모방이 아니
 1. 포트폴리오 원페이지 (좌측 고정 사이드바 + About / Experience / Projects / Certifications / Skills)
 2. 기술·사고 콘텐츠 목록·상세 (카테고리 필터 + 검색 + 정렬 + 카드 그리드)
 3. Life Map (경험을 두 축으로 기록하고 그래프로 시각화)
-4. Skills ↔ 콘텐츠 태그 자동 연동
+4. Knowledge ↔ 노트 태그 자동 연동 (7절에서 Skills → Knowledge로 수정)
 
 추가 요구: thread/blog 자동화 수익화 파이프라인을 나중에 붙일 수 있게 설계 여지를 남긴다 (Phase 5).
 
@@ -68,7 +68,7 @@ Card + Detail Panel. 왼쪽 카드 그리드, 오른쪽 선택 항목 상세, �
 
 - 마크다운 1개 추가 = 목록·상세·필터·검색 자동 생성
 - About 통계 전부 자동계산: Years(가장 이른 근무 시작일), Projects(파일 수), Certs(배열 길이), Companies(고유 회사 수)
-- Skills 태그 ↔ 콘텐츠 frontmatter 태그 자동 매칭 → 스킬 클릭 시 관련 글 표시
+- Skills 태그 ↔ 콘텐츠 frontmatter 태그 자동 매칭 → 스킬 클릭 시 관련 글 표시 (menosaint는 이를 Knowledge 축으로 바꿔 채택)
 - 개인정보는 환경변수 분리 (`PUBLIC_NAME_KO` 등), CI vars로 주입
 
 소스 repo는 비공개다. 코드를 가져올 수 없고 구조를 재구현해야 한다.
@@ -109,11 +109,11 @@ src/
   data/
     experience.ts                   경력 타임라인 (통계 소스)
     certifications.ts               자격증
-    skills.ts                       스킬 + 태그 매핑
+    knowledge.ts                    지식 영역 + 노트 태그 매핑
     life-axes.ts                    열정·방식 축 정의
   components/
     Sidebar.astro
-    CardDetailPanel.astro           Projects/Skills/Life 3회 재사용
+    CardDetailPanel.astro           Knowledge/Projects/Life 재사용
     ContentCard.astro
     FilterBar.astro                 검색+칩+정렬
   layouts/
@@ -147,15 +147,18 @@ heeho의 4개 통계를 그대로 가져오되 정체성에 맞게 조정한다.
 | Notes | `src/content/notes/` 파일 수 |
 | Certs | `certifications.ts` 배열 길이 |
 
-### 3.5 Skills ↔ 콘텐츠 연동
+### 3.5 Knowledge ↔ 노트 연동
 
 ```
-skills.ts:  { name: 'Ontology', tags: ['온톨로지', 'Ontology'] }
-note fm:    tags: ['온톨로지', '지식구조']
-→ 스킬 칩 클릭 시 매칭된 노트가 우측 패널에 표시
+knowledge.ts:  { name: '지식 구조', tags: ['온톨로지', 'ontology', '택소노미'] }
+note fm:       tags: ['온톨로지', '지식구조']
+→ 영역 클릭 시 매칭된 노트가 우측 패널에 표시. 영역 옆에는 노트 개수가 붙는다
 ```
 
-주의: Legion vault의 태그는 `domain/ai` 형태의 접두사 규칙이다. Astro 쪽 태그와 1:1이 아니므로 sync.py에서 매핑 테이블을 태워야 한다.
+개수가 곧 축적의 증거다. 스스로 안다고 선언한 값이 아니라 실제로 쓴 글의 수다.
+적은 영역은 결핍이 아니라 다음에 쓸 것의 목록으로 읽는다.
+
+주의: Legion vault의 태그 체계가 아직 정착되지 않아 제목 접두사(`인문 - `, `Claude Code - `, `R1. `)가 실질적인 분류자다. 그래서 매칭을 태그와 제목 접두사 두 경로로 건다. 장기적으로는 태그로 수렴시키는 편이 낫다.
 
 ### 3.6 Life Map
 
@@ -190,19 +193,19 @@ heeho의 두 축 모델을 그대로 채택한다.
 - 경력 타임라인 (회사, 기간, 역할, 주요 프로젝트)
 - 프로젝트 목록 (제목, 기간, 스택, 설명, 대표 이미지)
 - 자격증 목록
-- 스킬 카테고리와 항목
+- 지식 영역 분류
 - 한 줄 정체성 문구 (heeho의 "AI Agent Infrastructure Engineer"에 대응)
 
 heeho는 엔지니어 포트폴리오다. Ted의 정체성("조직과 사람, 시스템과 흐름")은 결이 다르므로 섹션 이름과 축을 그대로 베끼면 안 맞을 수 있다. Phase 0에서 같이 정한다.
 
 ### Phase 1 — Astro 스캐폴드 + 원페이지 포트폴리오
-Astro v5 + Tailwind v4 초기화, `v5` 브랜치 생성, 좌측 사이드바 레이아웃, About/Experience/Projects/Certifications/Skills 섹션, 통계 자동계산, CF Pages 프리뷰 빌드 확인.
+Astro v5 + Tailwind v4 초기화, `v5` 브랜치 생성, 좌측 사이드바 레이아웃, About/Knowledge/Now/Experience/Projects/Life 섹션, 통계 자동계산, CF Pages 프리뷰 빌드 확인.
 
 ### Phase 2 — notes 컬렉션
 목록 페이지 (검색+카테고리 칩+정렬+카드 그리드), 상세 페이지, Expressive Code, sync.py 개조, 기존 노트 7개 마이그레이션, RSS·sitemap·OG.
 
-### Phase 3 — Skills ↔ 태그 연동
-skills.ts 태그 매핑, Card+Detail 패널 컴포넌트화 후 Projects/Skills 양쪽 재사용.
+### Phase 3 — Knowledge ↔ 노트 태그 연동
+knowledge.ts 매칭 적용, 영역별 노트 개수 집계, Card+Detail 패널 컴포넌트화 후 Knowledge/Projects 양쪽 재사용.
 
 ### Phase 4 — Life Map
 life 컬렉션, 두 축 정의, 그래프·타임라인·목록 3뷰, 렌더링 라이브러리 결정.
@@ -236,28 +239,32 @@ heeho.net은 개발자가 본인을 홍보하는 구직용 포트폴리오다. m
   노출 수위는 `experience.ts`의 항목별 `visibility`(public / abstract / private)로 제어한다.
   코드가 아니라 데이터가 공개 범위를 결정하므로 나중에 바꿔도 컴포넌트를 손대지 않는다.
 - Certifications는 섹션에서 뺀다. 데이터 파일은 남겨두고 필요해지면 되살린다.
-- 공개 사이트의 중심축은 넷이다. Notes(사고 기록), Projects(Lab 실험), Life(경험 저장소),
-  Now(지금 하는 일).
+- 공개 사이트의 중심축은 Knowledge다. Skills(역량 선언)에서 Knowledge(지식 축적)로
+  바꿨다. "무엇을 잘한다"는 검증할 수 없지만 "무엇을 알아가고 있는가"는 글의 개수로
+  셀 수 있다. 영역 구분은 vault `1. Memory/know` 133개의 실제 태그 분포와 제목
+  접두사에서 도출했다 (AI·에이전트 / 지식 구조 / 조직·경영 / 시장·산업 / 법·규제 /
+  도구·환경 / 인문).
+  Notes, Projects, Life, Now가 그 뒤를 받친다.
 
 사이드바 구성:
 
 ```
-ABOUT
-NOW
-EXPERIENCE      추상화
-SKILLS
-  ㄴ NOTES      → /notes/
-PROJECTS
-  ㄴ LAB        → /projects/
-LIFE
-  ㄴ MAP        → /life/
+About
+Knowledge       중심축
+  ㄴ 노트 전체   → /notes/
+Now
+Experience      추상화
+Projects
+  ㄴ 프로젝트 전체 → /projects/
+Life
+  ㄴ Life Map   → /life/
 ```
 
 ### Phase 0 데이터 출처
 
 - 정체성·역할·관심 주제 — vault `WhoIam.md`
 - 담당 영역 — vault `1. Memory/do/JD_운영기획팀_진호경_markdown_v01.md` (JD v01, 2026-02-27)
-- 역량 분류 — `WhoIam.md` + `1. Memory/do/` 대분류 4개 + AI·자동화
+- 지식 영역 — vault `1. Memory/know` 133개의 태그 분포와 제목 접두사
 - Now — 기존 v4 `content/now.md` + `WhoIam.md` 1.7 / 1.9
 - Projects 후보 — vault `Lab/Projects/` 22개 폴더, 각 폴더의 README.md
 

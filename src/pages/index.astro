@@ -4,7 +4,7 @@ import Section from "@/components/Section.astro"
 import { profile } from "@/data/site"
 import { now } from "@/data/now"
 import { getPublicTimeline, getYearsOfExperience } from "@/data/experience"
-import { skillGroups } from "@/data/skills"
+import { knowledgeAreas } from "@/data/knowledge"
 
 // 통계는 데이터 파일에서 계산한다. 값이 없으면 아예 렌더링하지 않는다.
 const stats = [
@@ -58,10 +58,47 @@ const pending = "구현 예정"
     </div>
   </section>
 
+  <!-- Knowledge — 이 사이트의 중심축 -->
+  <Section
+    id="knowledge"
+    index="02"
+    title="Knowledge"
+    description="무엇을 잘하는지가 아니라, 무엇을 알아가고 있는지를 남깁니다."
+    action={{ label: "전체 노트 보기", href: "/notes/" }}
+  >
+    <ol class="divide-y divide-rule border-t border-rule">
+      {
+        knowledgeAreas.map((area, i) => (
+          <li class="py-6">
+            <div class="sm:flex sm:gap-8">
+              <div class="w-40 shrink-0">
+                <p class="font-mono text-xs text-gray-400">
+                  {String(i + 1).padStart(2, "0")}
+                </p>
+                <h3 class="mt-1 font-semibold text-gray-900">{area.name}</h3>
+              </div>
+              <div class="mt-2 sm:mt-0">
+                <p class="text-sm leading-relaxed text-gray-600">{area.description}</p>
+                <ul class="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+                  {area.topics.map((t) => (
+                    <li class="text-sm text-gray-400">{t}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+    <p class="mt-6 text-sm text-gray-400">
+      영역을 누르면 그 주제로 쓴 노트가 열리는 연결은 노트 컬렉션 구현 후에 붙는다.
+    </p>
+  </Section>
+
   <!-- Now -->
   <Section
     id="now"
-    index="02"
+    index="03"
     title="Now"
     description={`${nowYear}년 ${nowMonth}월 기준. 지금 무엇에 시간을 쓰고 있는지.`}
   >
@@ -80,7 +117,7 @@ const pending = "구현 예정"
   <!-- Experience (조직명을 가린 추상화 형태) -->
   <Section
     id="experience"
-    index="03"
+    index="04"
     title="Experience"
     description="어디에 있었는지보다 무엇을 다뤄왔는지를 남깁니다."
   >
@@ -121,30 +158,6 @@ const pending = "구현 예정"
     }
   </Section>
 
-  <!-- Skills -->
-  <Section
-    id="skills"
-    index="04"
-    title="Skills"
-    description="기술을 클릭하면 관련 노트를 확인할 수 있습니다."
-    action={{ label: "전체 노트 보기", href: "/notes/" }}
-  >
-    <dl class="divide-y divide-rule border-t border-rule">
-      {
-        skillGroups.map((group) => (
-          <div class="py-4 sm:flex sm:gap-6">
-            <dt class="w-24 shrink-0 text-sm text-gray-900">{group.category}</dt>
-            <dd class="mt-2 flex flex-wrap gap-x-4 gap-y-1 sm:mt-0">
-              {group.skills.map((skill) => (
-                <span class="text-sm text-gray-500">{skill.name}</span>
-              ))}
-            </dd>
-          </div>
-        ))
-      }
-    </dl>
-  </Section>
-
   <!-- Projects -->
   <Section
     id="projects"
@@ -153,7 +166,7 @@ const pending = "구현 예정"
     description="Lab에서 굴리고 있는 실험들입니다."
     action={{ label: "전체 보기", href: "/projects/" }}
   >
-    <p class="text-sm text-gray-400">{pending} — Card + Detail Panel</p>
+    <p class="text-sm text-gray-400">{pending} — 공개 범위 선별 후 구현</p>
   </Section>
 
   <!-- Life -->

@@ -36,8 +36,15 @@ const { activeHref } = Astro.props
   class="fixed inset-y-0 left-0 z-40 flex w-sidebar -translate-x-full flex-col border-r border-rule bg-paper transition-transform duration-200 lg:translate-x-0"
 >
   <div class="flex flex-1 flex-col overflow-y-auto px-7 py-10">
-    <!-- 워드마크. 인물 사진 대신 활자로 -->
+    <!-- 워드마크. 인물 사진 대신 캐릭터 이미지 + 활자 -->
     <a href="/" class="group block">
+      <img
+        src={profile.avatar}
+        alt=""
+        width="80"
+        height="120"
+        class="mb-5 h-30 w-20 rounded-md object-cover"
+      />
       <span class="font-mono text-lg tracking-tight text-gray-900"
         >{site.name}<span class="text-brand-600">.</span></span
       >
