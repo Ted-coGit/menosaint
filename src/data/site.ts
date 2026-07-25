@@ -54,13 +54,13 @@ export type NavItem = {
 }
 
 export const nav: NavItem[] = [
-  { label: "ABOUT", anchor: "about" },
-  { label: "NOW", anchor: "now" },
-  { label: "EXPERIENCE", anchor: "experience" },
-  { label: "SKILLS", anchor: "skills" },
-  { label: "NOTES", href: "/notes/", sub: true },
-  { label: "PROJECTS", anchor: "projects" },
-  { label: "LAB", href: "/projects/", sub: true },
-  { label: "LIFE", anchor: "life" },
-  { label: "MAP", href: "/life/", sub: true },
+  { label: "About", anchor: "about" },
+  { label: "Now", anchor: "now" },
+  { label: "Experience", anchor: "experience" },
+  { label: "Skills", anchor: "skills" },
+  { label: "노트 전체", href: "/notes/", sub: true },
+  { label: "Projects", anchor: "projects" },
+  { label: "프로젝트 전체", href: "/projects/", sub: true },
+  { label: "Life", anchor: "life" },
+  { label: "Life Map", href: "/life/", sub: true },
 ]

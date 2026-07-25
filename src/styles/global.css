@@ -18,13 +18,17 @@
   --color-brand-800: #1d3547;
   --color-brand-900: #172a39;
 
+  /* 종이 톤. 순백 대신 살짝 따뜻하게 — v4에서 쓰던 배경색 */
+  --color-paper: #faf8f8;
+  --color-rule: #e8e4e4;
+
   --font-sans:
     -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
     "Segoe UI", Roboto, sans-serif;
   --font-mono:
     ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-  --spacing-sidebar: 16rem;
+  --spacing-sidebar: 15rem;
 }
 
 /*

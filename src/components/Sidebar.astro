@@ -1,5 +1,5 @@
 ---
-import { profile, socials, nav } from "@/data/site"
+import { profile, socials, nav, site } from "@/data/site"
 import SocialIcon from "./SocialIcon.astro"
 
 interface Props {
@@ -13,46 +13,39 @@ const { activeHref } = Astro.props
 <button
   id="mobile-menu-btn"
   type="button"
-  class="fixed top-4 left-4 z-50 rounded-lg bg-brand-600 p-2.5 text-white shadow-lg lg:hidden"
+  class="fixed top-4 left-4 z-50 rounded-md border border-rule bg-paper p-2.5 text-gray-700 shadow-sm lg:hidden"
   aria-label="메뉴 열기"
   aria-expanded="false"
   aria-controls="sidebar"
 >
-  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-    <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+    <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
   </svg>
 </button>
 
 <!-- 모바일 오버레이 -->
 <div
   id="sidebar-overlay"
-  class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden"
+  class="fixed inset-0 z-30 hidden bg-gray-900/20 lg:hidden"
   aria-hidden="true"
 >
 </div>
 
 <aside
   id="sidebar"
-  class="fixed inset-y-0 left-0 z-40 flex w-sidebar -translate-x-full flex-col bg-brand-600 text-white transition-transform duration-200 lg:translate-x-0"
+  class="fixed inset-y-0 left-0 z-40 flex w-sidebar -translate-x-full flex-col border-r border-rule bg-paper transition-transform duration-200 lg:translate-x-0"
 >
-  <div class="flex flex-1 flex-col overflow-y-auto px-6 py-10">
-    <!-- 프로필 -->
-    <div class="flex flex-col items-center text-center">
-      <img
-        src={profile.avatar}
-        alt={profile.nameKo}
-        width="112"
-        height="112"
-        class="h-28 w-28 rounded-full object-cover ring-4 ring-white/70"
-      />
-      <a href="/" class="mt-4 font-bold underline underline-offset-4">
-        {profile.nameKo}
-      </a>
-      <p class="mt-1 text-xs text-white/70">{profile.role}</p>
-    </div>
+  <div class="flex flex-1 flex-col overflow-y-auto px-7 py-10">
+    <!-- 워드마크. 인물 사진 대신 활자로 -->
+    <a href="/" class="group block">
+      <span class="font-mono text-lg tracking-tight text-gray-900"
+        >{site.name}<span class="text-brand-600">.</span></span
+      >
+      <p class="mt-1 text-xs text-gray-500">{profile.role}</p>
+    </a>
 
-    <!-- 내비게이션 -->
-    <nav class="mt-10 flex flex-col gap-1" aria-label="주요 섹션">
+    <!-- 내비게이션. 좌측 정렬, 활성 표시는 채움이 아니라 좌측 괘선 -->
+    <nav class="mt-12 flex flex-col" aria-label="주요 섹션">
       {
         nav.map((item) => {
           const href = item.anchor ? `/#${item.anchor}` : item.href!
@@ -63,13 +56,15 @@ const { activeHref } = Astro.props
               data-nav
               data-anchor={item.anchor}
               class:list={[
-                "rounded-md px-3 py-2 text-center text-sm tracking-wide transition-colors",
-                item.sub ? "text-xs text-white/60" : "font-medium text-white/90",
-                "hover:bg-white/10",
-                isActive && "bg-white/20 text-white",
+                "-ml-px border-l py-1.5 transition-colors",
+                item.sub
+                  ? "pl-7 text-xs text-gray-400 hover:text-gray-600"
+                  : "pl-4 text-sm text-gray-600 hover:text-gray-900",
+                isActive
+                  ? "border-brand-600 font-medium text-gray-900"
+                  : "border-rule",
               ]}
             >
-              {item.sub && <span aria-hidden="true">ㄴ </span>}
               {item.label}
             </a>
           )
@@ -78,8 +73,8 @@ const { activeHref } = Astro.props
     </nav>
   </div>
 
-  <!-- 하단: 소셜 -->
-  <div class="flex justify-center gap-3 px-6 pb-8">
+  <!-- 하단 -->
+  <div class="flex items-center gap-4 border-t border-rule px-7 py-5">
     {
       socials.map((s) => (
         <a
@@ -87,9 +82,9 @@ const { activeHref } = Astro.props
           target="_blank"
           rel="noopener noreferrer"
           aria-label={s.label}
-          class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25"
+          class="text-gray-400 transition-colors hover:text-gray-900"
         >
-          <SocialIcon icon={s.icon} class="h-5 w-5" />
+          <SocialIcon icon={s.icon} class="h-4 w-4" />
         </a>
       ))
     }
@@ -109,7 +104,6 @@ const { activeHref } = Astro.props
     // 열려 있는 동안 햄버거가 사이드바 위에 겹치지 않게 숨긴다
     btn.classList.toggle("hidden", open)
     btn.setAttribute("aria-expanded", String(open))
-    btn.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기")
   }
 
   btn?.addEventListener("click", () =>
@@ -121,6 +115,7 @@ const { activeHref } = Astro.props
   })
 
   // 스크롤 스파이: 현재 보이는 섹션의 nav 항목을 강조
+  const ACTIVE = ["border-brand-600", "font-medium", "text-gray-900"]
   const links = Array.from(
     document.querySelectorAll<HTMLAnchorElement>("[data-nav][data-anchor]"),
   )
@@ -140,8 +135,9 @@ const { activeHref } = Astro.props
         // 문서 순서상 가장 위에 있는 활성 섹션 하나만 강조
         const current = sections.find((s) => active.has(s.id))?.id
         for (const link of links) {
-          link.classList.toggle("bg-white/20", link.dataset.anchor === current)
-          link.classList.toggle("text-white", link.dataset.anchor === current)
+          const on = link.dataset.anchor === current
+          link.classList.toggle("border-rule", !on)
+          ACTIVE.forEach((c) => link.classList.toggle(c, on))
         }
       },
       { rootMargin: "-20% 0px -70% 0px" },
