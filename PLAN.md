@@ -225,11 +225,57 @@ CF Pages 프로덕션 브랜치를 v5로 전환. 이후 thread/blog 자동화 �
 
 ---
 
-## 7. 열린 결정 사항
+## 7. 방향 수정 (2026-07-25)
 
-1. 정체성 문구와 섹션 구성 — heeho의 엔지니어 프레임을 그대로 쓸지, Ted 결에 맞게 재정의할지
-2. 한글 슬러그 대신 영문 슬러그 채택 여부
-3. 기존 URL(`/notes/...`, `/lab/...`) 보존 여부. 안 하면 리다이렉트 불필요
-4. 댓글 giscus 도입 여부
-5. Life Map 두 축의 대비쌍 정의
-6. 방문자 카운터 — heeho는 자체 API를 쓴다. menosaint는 Plausible을 쓰고 있으므로 별도 백엔드 없이 갈지 결정
+heeho.net은 개발자가 본인을 홍보하는 구직용 포트폴리오다. menosaint는 재직 중인 사람의
+사고 기록이자 경험 저장소다. 목적이 다르므로 섹션 구성을 그대로 베끼지 않는다.
+
+결정한 것:
+
+- 이력은 추상화해서만 공개한다. 조직명과 재직 기간을 가리고 담당 영역과 주제만 남긴다.
+  노출 수위는 `experience.ts`의 항목별 `visibility`(public / abstract / private)로 제어한다.
+  코드가 아니라 데이터가 공개 범위를 결정하므로 나중에 바꿔도 컴포넌트를 손대지 않는다.
+- Certifications는 섹션에서 뺀다. 데이터 파일은 남겨두고 필요해지면 되살린다.
+- 공개 사이트의 중심축은 넷이다. Notes(사고 기록), Projects(Lab 실험), Life(경험 저장소),
+  Now(지금 하는 일).
+
+사이드바 구성:
+
+```
+ABOUT
+NOW
+EXPERIENCE      추상화
+SKILLS
+  ㄴ NOTES      → /notes/
+PROJECTS
+  ㄴ LAB        → /projects/
+LIFE
+  ㄴ MAP        → /life/
+```
+
+### Phase 0 데이터 출처
+
+- 정체성·역할·관심 주제 — vault `WhoIam.md`
+- 담당 영역 — vault `1. Memory/do/JD_운영기획팀_진호경_markdown_v01.md` (JD v01, 2026-02-27)
+- 역량 분류 — `WhoIam.md` + `1. Memory/do/` 대분류 4개 + AI·자동화
+- Now — 기존 v4 `content/now.md` + `WhoIam.md` 1.7 / 1.9
+- Projects 후보 — vault `Lab/Projects/` 22개 폴더, 각 폴더의 README.md
+
+### 아직 못 채운 데이터
+
+vault에서 찾지 못했다. 직접 입력이 필요하다.
+
+- 현재 조직 입사일 — 없으면 연차 자동계산이 동작하지 않아 통계에서 YEARS가 빠진다
+- 이전 경력, 학력
+- 자격증 — `WhoIam.md`의 "Licence (자격증)" 항목이 비어 있다
+
+---
+
+## 8. 열린 결정 사항
+
+1. 한글 슬러그 대신 영문 슬러그 채택 여부
+2. 기존 URL(`/notes/...`, `/lab/...`) 보존 여부. 안 하면 리다이렉트 불필요
+3. 댓글 giscus 도입 여부
+4. Life Map 두 축의 대비쌍 정의 — heeho의 4쌍을 그대로 쓸지 재정의할지
+5. 방문자 카운터 — heeho는 자체 API를 쓴다. menosaint는 Plausible을 쓰고 있으므로 별도 백엔드 없이 갈지 결정
+6. Projects 공개 범위 — Lab 22개 중 무엇을 낼지. 회사 업무 연계 프로젝트(HR_data_PMI 등)는 제외 검토

@@ -2,19 +2,22 @@
 import BaseLayout from "@/layouts/BaseLayout.astro"
 import Section from "@/components/Section.astro"
 import { profile } from "@/data/site"
-import { getYearsOfExperience, getCompanyCount } from "@/data/experience"
-import { certifications } from "@/data/certifications"
+import { now } from "@/data/now"
+import { getPublicTimeline, getYearsOfExperience } from "@/data/experience"
+import { skillGroups } from "@/data/skills"
 
-// 통계는 전부 데이터 파일에서 계산한다. 값이 없으면 렌더링하지 않는다.
+// 통계는 데이터 파일에서 계산한다. 값이 없으면 아예 렌더링하지 않는다.
 const stats = [
-  { value: getYearsOfExperience(), label: "YEARS", caption: profile.role },
-  { value: null, label: "PROJECTS", caption: "완료한 프로젝트" },
-  { value: certifications.length || null, label: "CERTS", caption: "자격증" },
-  { value: getCompanyCount() || null, label: "COMPANIES", caption: "근무 경험" },
+  { value: getYearsOfExperience(), label: "YEARS", caption: "경력" },
 ].filter((s) => s.value !== null)
 
-/** Phase 0 데이터가 들어오기 전까지 각 섹션에 남겨두는 안내 */
-const pending = "TODO(Phase 0) — 데이터 입력 후 구현"
+const experience = getPublicTimeline()
+
+const nowYear = Number(now.updated.split("-")[0])
+const nowMonth = Number(now.updated.split("-")[1])
+
+/** 아직 구현 전인 섹션에 남기는 표시 */
+const pending = "구현 예정"
 ---
 
 <BaseLayout>
@@ -55,36 +58,121 @@ const pending = "TODO(Phase 0) — 데이터 입력 후 구현"
       }
 
       <p class="mt-12 text-brand-600">
-        Check out my <a href="#skills" class="font-semibold hover:underline">skills</a>
-        and my <a href="/projects/" class="font-semibold hover:underline">projects</a>!
+        지금 쓰는 <a href="/notes/" class="font-semibold hover:underline">글</a>과
+        만드는 <a href="/projects/" class="font-semibold hover:underline">것들</a>.
       </p>
     </div>
   </section>
 
-  <Section id="experience" title="Experience">
-    <p class="text-sm text-gray-400">{pending}</p>
-  </Section>
-
+  <!-- Now -->
   <Section
-    id="projects"
-    title="Projects"
-    description="선택하면 상세 내용을 확인할 수 있습니다."
-    action={{ label: "전체 프로젝트 보기", href: "/projects/" }}
+    id="now"
+    title="Now"
+    description={`${nowYear}년 ${nowMonth}월 기준. 지금 무엇에 시간을 쓰고 있는지.`}
   >
-    <p class="text-sm text-gray-400">{pending} — Card + Detail Panel (Phase 1)</p>
+    <ul class="space-y-6">
+      {
+        now.items.map((item) => (
+          <li class="border-l-2 border-brand-200 pl-5">
+            <h3 class="font-semibold text-gray-900">{item.title}</h3>
+            <p class="mt-1 leading-relaxed text-gray-600">{item.detail}</p>
+          </li>
+        ))
+      }
+    </ul>
   </Section>
 
-  <Section id="certifications" title="Certifications">
-    <p class="text-sm text-gray-400">{pending}</p>
+  <!-- Experience (조직명을 가린 추상화 형태) -->
+  <Section
+    id="experience"
+    title="Experience"
+    description="어디에 있었는지보다 무엇을 다뤄왔는지를 남깁니다."
+  >
+    {
+      experience.length === 0 ? (
+        <p class="text-sm text-gray-400">{pending}</p>
+      ) : (
+        <ol class="space-y-10">
+          {experience.map((item) => (
+            <li class="rounded-xl bg-gray-50 p-6">
+              <div class="flex flex-wrap items-baseline justify-between gap-2">
+                <h3 class="text-lg font-bold text-gray-900">{item.title}</h3>
+                {item.organizationLabel && (
+                  <span class="text-sm text-gray-500">{item.organizationLabel}</span>
+                )}
+              </div>
+
+              {item.summary && (
+                <p class="mt-3 leading-relaxed text-gray-600">{item.summary}</p>
+              )}
+
+              {item.domains && item.domains.length > 0 && (
+                <dl class="mt-5 space-y-3 border-t border-gray-200 pt-5">
+                  {item.domains.map((d) => (
+                    <div class="sm:flex sm:gap-4">
+                      <dt class="w-28 shrink-0 text-sm font-semibold text-brand-600">
+                        {d.name}
+                      </dt>
+                      <dd class="text-sm leading-relaxed text-gray-600">{d.detail}</dd>
+                    </div>
+                  ))}
+                </dl>
+              )}
+            </li>
+          ))}
+        </ol>
+      )
+    }
   </Section>
 
+  <!-- Skills -->
   <Section
     id="skills"
     title="Skills"
     description="기술을 클릭하면 관련 노트를 확인할 수 있습니다."
     action={{ label: "전체 노트 보기", href: "/notes/" }}
+  >
+    <div class="space-y-8">
+      {
+        skillGroups.map((group) => (
+          <div>
+            <h3 class="text-xs font-semibold tracking-wider text-gray-500 uppercase">
+              {group.category}
+            </h3>
+            <ul class="mt-3 flex flex-wrap gap-2">
+              {group.skills.map((skill) => (
+                <li class="rounded-full border border-gray-200 px-4 py-1.5 text-sm text-gray-700">
+                  {skill.name}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+    <p class="mt-8 text-sm text-gray-400">
+      노트 태그 연동은 Phase 3에서 붙인다. 지금은 목록만 표시된다.
+    </p>
+  </Section>
+
+  <!-- Projects -->
+  <Section
+    id="projects"
+    title="Projects"
+    description="Lab에서 굴리고 있는 실험들입니다."
+    action={{ label: "전체 보기", href: "/projects/" }}
+  >
+    <p class="text-sm text-gray-400">{pending} — Card + Detail Panel</p>
+  </Section>
+
+  <!-- Life -->
+  <Section
+    id="life"
+    title="Life"
+    description="무엇에 몰입했고 어떻게 관여했는지를 기록합니다."
+    action={{ label: "Life Map 보기", href: "/life/" }}
     class="border-b-0"
   >
-    <p class="text-sm text-gray-400">{pending} — Skills ↔ 노트 태그 연동 (Phase 3)</p>
+    <p class="text-sm text-gray-400">{pending} — 두 축(열정 × 방식) 기록과 그래프</p>
   </Section>
 </BaseLayout>

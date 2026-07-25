@@ -20,8 +20,12 @@ export const site = {
 export const profile = {
   nameKo: env.PUBLIC_NAME_KO ?? "Ted",
   nameEn: env.PUBLIC_NAME_EN ?? "Ted",
-  /** TODO(Phase 0): 정체성 한 줄 문구 확정 */
-  role: env.PUBLIC_ROLE ?? "Systems & Organization",
+  /**
+   * 공개용 한 줄 정체성. 소속이 아니라 하는 일로 설명한다.
+   * 출처: Legion vault `WhoIam.md` 1.1 기본 정체성
+   * TODO(Phase 0): 후보 중 확정 — "AI-enabled Operator" / "Operating Designer" / 현재 값
+   */
+  role: env.PUBLIC_ROLE ?? "AI-enabled Operator",
   tagline: "조직과 사람, 시스템과 흐름에 관심이 많습니다.",
   avatar: env.PUBLIC_AVATAR ?? "/images/avatar.svg",
   email: env.PUBLIC_EMAIL ?? "ted@menosaint.xyz",
@@ -38,8 +42,9 @@ export const socials = [
  * `anchor`는 원페이지(/) 내 섹션 id, `href`는 별도 라우트.
  * `sub: true`면 상위 항목에 딸린 하위 링크로 들여쓰기 렌더링한다.
  *
- * TODO(Phase 0): 섹션 구성이 Ted의 정체성에 맞는지 재검토.
- * 현재는 레퍼런스(heeho.net) 구성을 그대로 옮겨둔 상태다.
+ * 구성 근거: 이 사이트는 구직용 포트폴리오가 아니라 사고 기록과 경험 저장소다.
+ * 그래서 이력 대신 Notes / Projects / Life / Now를 중심축으로 둔다.
+ * Experience는 조직을 가린 추상화 형태로만 남긴다.
  */
 export type NavItem = {
   label: string
@@ -50,10 +55,12 @@ export type NavItem = {
 
 export const nav: NavItem[] = [
   { label: "ABOUT", anchor: "about" },
+  { label: "NOW", anchor: "now" },
   { label: "EXPERIENCE", anchor: "experience" },
-  { label: "PROJECTS", anchor: "projects" },
-  { label: "DETAILS", href: "/projects/", sub: true },
-  { label: "CERTIFICATIONS", anchor: "certifications" },
   { label: "SKILLS", anchor: "skills" },
   { label: "NOTES", href: "/notes/", sub: true },
+  { label: "PROJECTS", anchor: "projects" },
+  { label: "LAB", href: "/projects/", sub: true },
+  { label: "LIFE", anchor: "life" },
+  { label: "MAP", href: "/life/", sub: true },
 ]
