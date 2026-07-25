@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/*
+ * 디자인 토큰
+ * --brand-* 한 곳만 바꾸면 사이드바·강조색·링크가 전부 따라온다.
+ * 현재 값은 v4(Quartz) 시절 secondary(#284b63) 계열.
+ * heeho.net처럼 indigo로 가려면 indigo-600(#4f46e5) 스케일로 교체.
+ */
+@theme {
+  --color-brand-50: #f2f6f9;
+  --color-brand-100: #e2ebf2;
+  --color-brand-200: #c6d8e6;
+  --color-brand-300: #9dbcd2;
+  --color-brand-400: #6d99b8;
+  --color-brand-500: #4a7a9e;
+  --color-brand-600: #284b63;
+  --color-brand-700: #234156;
+  --color-brand-800: #1d3547;
+  --color-brand-900: #172a39;
+
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Malgun Gothic",
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --spacing-sidebar: 16rem;
+}
+
+/*
+ * 웹폰트를 쓰지 않는다. 시스템 폰트 스택만 사용해 LCP를 지킨다.
+ * (heeho.net도 같은 선택을 했다.)
+ */
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+/* 사이드바 앵커 이동 시 제목이 상단에 붙지 않도록 여유 */
+section[id] {
+  scroll-margin-top: 2rem;
+}
+
+@media print {
+  #sidebar,
+  #sidebar-overlay,
+  #mobile-menu-btn {
+    display: none !important;
+  }
+  main {
+    margin-left: 0 !important;
+  }
+}

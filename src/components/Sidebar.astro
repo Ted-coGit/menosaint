@@ -1,0 +1,152 @@
+---
+import { profile, socials, nav } from "@/data/site"
+import SocialIcon from "./SocialIcon.astro"
+
+interface Props {
+  /** 별도 라우트에서 활성 표시할 nav href (예: "/notes/") */
+  activeHref?: string
+}
+const { activeHref } = Astro.props
+---
+
+<!-- 모바일 햄버거 -->
+<button
+  id="mobile-menu-btn"
+  type="button"
+  class="fixed top-4 left-4 z-50 rounded-lg bg-brand-600 p-2.5 text-white shadow-lg lg:hidden"
+  aria-label="메뉴 열기"
+  aria-expanded="false"
+  aria-controls="sidebar"
+>
+  <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round" />
+  </svg>
+</button>
+
+<!-- 모바일 오버레이 -->
+<div
+  id="sidebar-overlay"
+  class="fixed inset-0 z-30 hidden bg-black/40 lg:hidden"
+  aria-hidden="true"
+>
+</div>
+
+<aside
+  id="sidebar"
+  class="fixed inset-y-0 left-0 z-40 flex w-sidebar -translate-x-full flex-col bg-brand-600 text-white transition-transform duration-200 lg:translate-x-0"
+>
+  <div class="flex flex-1 flex-col overflow-y-auto px-6 py-10">
+    <!-- 프로필 -->
+    <div class="flex flex-col items-center text-center">
+      <img
+        src={profile.avatar}
+        alt={profile.nameKo}
+        width="112"
+        height="112"
+        class="h-28 w-28 rounded-full object-cover ring-4 ring-white/70"
+      />
+      <a href="/" class="mt-4 font-bold underline underline-offset-4">
+        {profile.nameKo}
+      </a>
+      <p class="mt-1 text-xs text-white/70">{profile.role}</p>
+    </div>
+
+    <!-- 내비게이션 -->
+    <nav class="mt-10 flex flex-col gap-1" aria-label="주요 섹션">
+      {
+        nav.map((item) => {
+          const href = item.anchor ? `/#${item.anchor}` : item.href!
+          const isActive = activeHref !== undefined && item.href === activeHref
+          return (
+            <a
+              href={href}
+              data-nav
+              data-anchor={item.anchor}
+              class:list={[
+                "rounded-md px-3 py-2 text-center text-sm tracking-wide transition-colors",
+                item.sub ? "text-xs text-white/60" : "font-medium text-white/90",
+                "hover:bg-white/10",
+                isActive && "bg-white/20 text-white",
+              ]}
+            >
+              {item.sub && <span aria-hidden="true">ㄴ </span>}
+              {item.label}
+            </a>
+          )
+        })
+      }
+    </nav>
+  </div>
+
+  <!-- 하단: 소셜 -->
+  <div class="flex justify-center gap-3 px-6 pb-8">
+    {
+      socials.map((s) => (
+        <a
+          href={s.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label={s.label}
+          class="flex h-10 w-10 items-center justify-center rounded-full bg-white/15 transition-colors hover:bg-white/25"
+        >
+          <SocialIcon icon={s.icon} class="h-5 w-5" />
+        </a>
+      ))
+    }
+  </div>
+</aside>
+
+<script>
+  // 모바일 토글
+  const btn = document.getElementById("mobile-menu-btn")
+  const sidebar = document.getElementById("sidebar")
+  const overlay = document.getElementById("sidebar-overlay")
+
+  function setOpen(open: boolean) {
+    if (!sidebar || !overlay || !btn) return
+    sidebar.classList.toggle("-translate-x-full", !open)
+    overlay.classList.toggle("hidden", !open)
+    // 열려 있는 동안 햄버거가 사이드바 위에 겹치지 않게 숨긴다
+    btn.classList.toggle("hidden", open)
+    btn.setAttribute("aria-expanded", String(open))
+    btn.setAttribute("aria-label", open ? "메뉴 닫기" : "메뉴 열기")
+  }
+
+  btn?.addEventListener("click", () =>
+    setOpen(btn.getAttribute("aria-expanded") !== "true"),
+  )
+  overlay?.addEventListener("click", () => setOpen(false))
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") setOpen(false)
+  })
+
+  // 스크롤 스파이: 현재 보이는 섹션의 nav 항목을 강조
+  const links = Array.from(
+    document.querySelectorAll<HTMLAnchorElement>("[data-nav][data-anchor]"),
+  )
+  const sections = links
+    .map((l) => document.getElementById(l.dataset.anchor!))
+    .filter((el): el is HTMLElement => el !== null)
+
+  if (sections.length > 0) {
+    const active = new Set<string>()
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) active.add(entry.target.id)
+          else active.delete(entry.target.id)
+        }
+        // 문서 순서상 가장 위에 있는 활성 섹션 하나만 강조
+        const current = sections.find((s) => active.has(s.id))?.id
+        for (const link of links) {
+          link.classList.toggle("bg-white/20", link.dataset.anchor === current)
+          link.classList.toggle("text-white", link.dataset.anchor === current)
+        }
+      },
+      { rootMargin: "-20% 0px -70% 0px" },
+    )
+
+    sections.forEach((s) => observer.observe(s))
+  }
+</script>

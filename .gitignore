@@ -1,9 +1,17 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# tooling / local
 .DS_Store
 .bkit/
 .gstack/
-node_modules/
-quartz/node_modules/
-public/
-quartz/public/
-.quartz-cache/
-quartz/.quartz-cache/
+.claude/settings.local.json
+
+# environment
+.env
+.env.production
+!.env.example

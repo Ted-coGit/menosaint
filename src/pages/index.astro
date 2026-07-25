@@ -1,0 +1,90 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import Section from "@/components/Section.astro"
+import { profile } from "@/data/site"
+import { getYearsOfExperience, getCompanyCount } from "@/data/experience"
+import { certifications } from "@/data/certifications"
+
+// 통계는 전부 데이터 파일에서 계산한다. 값이 없으면 렌더링하지 않는다.
+const stats = [
+  { value: getYearsOfExperience(), label: "YEARS", caption: profile.role },
+  { value: null, label: "PROJECTS", caption: "완료한 프로젝트" },
+  { value: certifications.length || null, label: "CERTS", caption: "자격증" },
+  { value: getCompanyCount() || null, label: "COMPANIES", caption: "근무 경험" },
+].filter((s) => s.value !== null)
+
+/** Phase 0 데이터가 들어오기 전까지 각 섹션에 남겨두는 안내 */
+const pending = "TODO(Phase 0) — 데이터 입력 후 구현"
+---
+
+<BaseLayout>
+  <!-- Hero -->
+  <section id="about" class="border-b border-gray-100 px-6 py-24 lg:px-16">
+    <div class="mx-auto max-w-4xl">
+      <p class="text-gray-600">
+        안녕하세요, <strong class="font-semibold text-gray-900">{profile.nameKo}</strong>입니다.
+      </p>
+
+      <h1 class="mt-4 text-5xl leading-none font-black tracking-tight lg:text-7xl">
+        <span class="block text-gray-900">MENO</span>
+        <span class="block text-brand-600">SAINT</span>
+      </h1>
+
+      <p class="mt-8 max-w-xl text-lg leading-relaxed text-gray-700">
+        {profile.tagline}
+      </p>
+      <p class="mt-4 max-w-xl leading-relaxed text-gray-600">
+        현실 문제를 구조적으로 바라보고, 그 과정을 기록합니다.<br />
+        이 사이트는 제 사고의 public surface입니다.
+      </p>
+
+      {
+        stats.length > 0 && (
+          <dl class="mt-12 flex flex-wrap gap-x-12 gap-y-6">
+            {stats.map((s) => (
+              <div>
+                <dd class="text-4xl font-bold text-brand-600">{s.value}+</dd>
+                <dt class="mt-1 text-xs font-semibold tracking-wider text-gray-900">
+                  {s.label}
+                </dt>
+                <p class="text-xs text-gray-500">{s.caption}</p>
+              </div>
+            ))}
+          </dl>
+        )
+      }
+
+      <p class="mt-12 text-brand-600">
+        Check out my <a href="#skills" class="font-semibold hover:underline">skills</a>
+        and my <a href="/projects/" class="font-semibold hover:underline">projects</a>!
+      </p>
+    </div>
+  </section>
+
+  <Section id="experience" title="Experience">
+    <p class="text-sm text-gray-400">{pending}</p>
+  </Section>
+
+  <Section
+    id="projects"
+    title="Projects"
+    description="선택하면 상세 내용을 확인할 수 있습니다."
+    action={{ label: "전체 프로젝트 보기", href: "/projects/" }}
+  >
+    <p class="text-sm text-gray-400">{pending} — Card + Detail Panel (Phase 1)</p>
+  </Section>
+
+  <Section id="certifications" title="Certifications">
+    <p class="text-sm text-gray-400">{pending}</p>
+  </Section>
+
+  <Section
+    id="skills"
+    title="Skills"
+    description="기술을 클릭하면 관련 노트를 확인할 수 있습니다."
+    action={{ label: "전체 노트 보기", href: "/notes/" }}
+    class="border-b-0"
+  >
+    <p class="text-sm text-gray-400">{pending} — Skills ↔ 노트 태그 연동 (Phase 3)</p>
+  </Section>
+</BaseLayout>
