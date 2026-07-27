@@ -5,6 +5,8 @@ import { profile } from "@/data/site"
 import { now } from "@/data/now"
 import { getPublicTimeline, getYearsOfExperience } from "@/data/experience"
 import { knowledgeAreas } from "@/data/knowledge"
+import { getUncoveredValues } from "@/data/values"
+import ValueHeatmap from "@/components/ValueHeatmap.astro"
 
 // 통계는 데이터 파일에서 계산한다. 값이 없으면 아예 렌더링하지 않는다.
 const stats = [
@@ -12,6 +14,7 @@ const stats = [
 ].filter((s) => s.value !== null)
 
 const experience = getPublicTimeline()
+const uncovered = getUncoveredValues()
 
 const nowYear = Number(now.updated.split("-")[0])
 const nowMonth = Number(now.updated.split("-")[1])
@@ -95,7 +98,7 @@ const pending = "구현 예정"
     </p>
   </Section>
 
-  <!-- Now -->
+  <!-- Now — 문장으로 답하는 "지금", 그 아래 데이터로 답하는 "지금" -->
   <Section
     id="now"
     index="03"
@@ -112,6 +115,26 @@ const pending = "구현 예정"
         ))
       }
     </ul>
+
+    <div class="mt-14 border-t border-rule pt-10">
+      <h3 class="font-semibold text-gray-900">활동 기록</h3>
+      <p class="mt-2 mb-8 max-w-2xl text-sm leading-relaxed text-gray-500">
+        위가 의도라면 아래는 실제입니다. 지덕체부복 다섯 축의 주간 활동을
+        TickTick 습관 체크인에서 가져옵니다. 무엇을 했는지는 남기지 않고 횟수만 셉니다.
+      </p>
+
+      <ValueHeatmap />
+
+      {
+        uncovered.length > 0 && (
+          <p class="mt-6 max-w-2xl text-sm leading-relaxed text-gray-500">
+            {uncovered.map((v) => v.name).join("과 ")}은 아직 추적하는 습관이 없어 빈
+            줄로 남아 있습니다. 채우려고 꾸미지 않습니다. 기록을 시작하는 시점이
+            지금이고, 비어 있다는 사실도 기록입니다.
+          </p>
+        )
+      }
+    </div>
   </Section>
 
   <!-- Experience (조직명을 가린 추상화 형태) -->
@@ -169,14 +192,4 @@ const pending = "구현 예정"
     <p class="text-sm text-gray-400">{pending} — 공개 범위 선별 후 구현</p>
   </Section>
 
-  <!-- Life -->
-  <Section
-    id="life"
-    index="06"
-    title="Life"
-    description="무엇에 몰입했고 어떻게 관여했는지를 기록합니다."
-    action={{ label: "Life Map 보기", href: "/life/" }}
-  >
-    <p class="text-sm text-gray-400">{pending} — 두 축(열정 × 방식) 기록과 그래프</p>
-  </Section>
 </BaseLayout>

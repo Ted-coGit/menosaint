@@ -46,7 +46,10 @@ export const socials = [
  * 구성 근거: 이 사이트는 구직용 포트폴리오가 아니라 사고 기록과 경험 저장소다.
  * 중심축은 Knowledge다. "무엇을 잘한다"는 역량 선언(Skills)이 아니라
  * "무엇을 알아가고 있는가"를 글의 축적으로 보여준다.
- * Experience는 조직을 가린 추상화 형태로만 남기고, Projects와 Life가 그 뒤를 받친다.
+ * Experience는 조직을 가린 추상화 형태로만 남기고, Projects가 그 뒤를 받친다.
+ *
+ * Life 섹션은 두지 않는다. 서술형 일상 기록은 사진과 함께 네이버 블로그로 나가고,
+ * 개인정보가 없는 활동 집계(잔디)만 Now 아래에 남긴다.
  */
 export type NavItem = {
   label: string
@@ -63,6 +66,4 @@ export const nav: NavItem[] = [
   { label: "Experience", anchor: "experience" },
   { label: "Projects", anchor: "projects" },
   { label: "프로젝트 전체", href: "/projects/", sub: true },
-  { label: "Life", anchor: "life" },
-  { label: "Life Map", href: "/life/", sub: true },
 ]
