@@ -4,7 +4,8 @@ import Section from "@/components/Section.astro"
 import { profile } from "@/data/site"
 import { now } from "@/data/now"
 import { getPublicTimeline, getYearsOfExperience } from "@/data/experience"
-import { knowledgeAreas } from "@/data/knowledge"
+import { getCollection } from "astro:content"
+import { knowledgeAreas, matchAreas } from "@/data/knowledge"
 import { getUncoveredValues } from "@/data/values"
 import ValueHeatmap from "@/components/ValueHeatmap.astro"
 
@@ -15,6 +16,16 @@ const stats = [
 
 const experience = getPublicTimeline()
 const uncovered = getUncoveredValues()
+
+// 지식 영역별 노트 개수. 선언이 아니라 축적으로 드러낸다.
+// 개수가 적은 영역은 결핍이 아니라 다음에 쓸 것의 목록이다.
+const publishedNotes = (await getCollection("notes")).filter((n) => !n.data.draft)
+const noteCounts = new Map<string, number>()
+for (const n of publishedNotes) {
+  for (const a of matchAreas({ title: n.data.title, tags: n.data.tags })) {
+    noteCounts.set(a.slug, (noteCounts.get(a.slug) ?? 0) + 1)
+  }
+}
 
 const nowYear = Number(now.updated.split("-")[0])
 const nowMonth = Number(now.updated.split("-")[1])
@@ -78,7 +89,12 @@ const pending = "구현 예정"
                 <p class="font-mono text-xs text-gray-400">
                   {String(i + 1).padStart(2, "0")}
                 </p>
-                <h3 class="mt-1 font-semibold text-gray-900">{area.name}</h3>
+                <h3 class="mt-1 font-semibold text-gray-900">
+                  {area.name}
+                  <span class="ml-1.5 font-mono text-xs font-normal text-gray-400">
+                    {noteCounts.get(area.slug) ?? 0}
+                  </span>
+                </h3>
               </div>
               <div class="mt-2 sm:mt-0">
                 <p class="text-sm leading-relaxed text-gray-600">{area.description}</p>
@@ -93,8 +109,9 @@ const pending = "구현 예정"
         ))
       }
     </ol>
-    <p class="mt-6 text-sm text-gray-400">
-      영역을 누르면 그 주제로 쓴 노트가 열리는 연결은 노트 컬렉션 구현 후에 붙는다.
+    <p class="mt-6 max-w-2xl text-sm leading-relaxed text-gray-400">
+      숫자는 그 영역으로 쓴 노트의 개수입니다. 안다고 선언한 값이 아니라 실제로 쓴
+      글의 수라서, 적은 영역은 결핍이 아니라 다음에 쓸 것의 목록입니다.
     </p>
   </Section>
 

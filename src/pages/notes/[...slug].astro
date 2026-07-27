@@ -1,0 +1,164 @@
+---
+import BaseLayout from "@/layouts/BaseLayout.astro"
+import { getCollection, render, type CollectionEntry } from "astro:content"
+import { matchAreas } from "@/data/knowledge"
+
+export async function getStaticPaths() {
+  const notes = (await getCollection("notes")).filter((n) => !n.data.draft)
+  return notes.map((entry) => ({ params: { slug: entry.id }, props: { entry } }))
+}
+
+type Props = { entry: CollectionEntry<"notes"> }
+const { entry } = Astro.props
+const { Content } = await render(entry)
+
+const areas = matchAreas({ title: entry.data.title, tags: entry.data.tags })
+
+const fmt = (d: Date) =>
+  `${d.getFullYear()}년 ${d.getMonth() + 1}월 ${d.getDate()}일`
+---
+
+<BaseLayout
+  title={entry.data.title}
+  description={entry.data.description}
+  activeHref="/notes/"
+>
+  <article class="mx-auto max-w-3xl px-6 py-20 lg:px-16">
+    <a href="/notes/" class="text-sm text-gray-500 hover:underline">← 노트 목록</a>
+
+    <header class="mt-8">
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+        {
+          areas.map((a) => (
+            <span class="font-mono text-xs text-brand-600">{a.name}</span>
+          ))
+        }
+        <time class="font-mono text-xs text-gray-400" datetime={entry.data.pubDate.toISOString()}>
+          {fmt(entry.data.pubDate)}
+        </time>
+        {
+          entry.data.updatedDate && (
+            <span class="font-mono text-xs text-gray-300">
+              수정 {fmt(entry.data.updatedDate)}
+            </span>
+          )
+        }
+      </div>
+
+      <h1 class="mt-3 text-2xl leading-snug font-semibold tracking-tight text-gray-900">
+        {entry.data.title}
+      </h1>
+
+      {
+        entry.data.tags.length > 0 && (
+          <ul class="mt-4 flex flex-wrap gap-x-3">
+            {entry.data.tags.map((t) => (
+              <li class="font-mono text-xs text-gray-400">#{t}</li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+
+    <div class="note-body mt-12">
+      <Content />
+    </div>
+
+    <footer class="mt-20 border-t border-rule pt-8">
+      <a href="/notes/" class="text-sm text-gray-500 hover:underline">
+        ← 다른 노트 보기
+      </a>
+    </footer>
+  </article>
+</BaseLayout>
+
+<style is:global>
+  /*
+   * 본문 타이포그래피. Tailwind Typography 플러그인을 쓰지 않는다.
+   * 규칙이 적어서 직접 쓰는 편이 번들도 작고 통제도 쉽다.
+   */
+  .note-body {
+    color: var(--color-gray-700);
+    line-height: 1.8;
+  }
+  .note-body > * + * {
+    margin-top: 1.25rem;
+  }
+  .note-body h2 {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--color-rule);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+  .note-body h3 {
+    margin-top: 2rem;
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+  .note-body a {
+    color: var(--color-brand-600);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .note-body ul,
+  .note-body ol {
+    padding-left: 1.25rem;
+  }
+  .note-body ul {
+    list-style: disc;
+  }
+  .note-body ol {
+    list-style: decimal;
+  }
+  .note-body li + li {
+    margin-top: 0.4rem;
+  }
+  .note-body blockquote {
+    border-left: 2px solid var(--color-brand-200);
+    padding-left: 1rem;
+    color: var(--color-gray-500);
+  }
+  .note-body code {
+    font-family: var(--font-mono);
+    font-size: 0.875em;
+    background: var(--color-gray-100);
+    padding: 0.1em 0.35em;
+    border-radius: 3px;
+  }
+  .note-body pre {
+    overflow-x: auto;
+    padding: 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+  }
+  .note-body pre code {
+    background: none;
+    padding: 0;
+  }
+  /* 표는 좁은 화면에서 가로 스크롤 */
+  .note-body table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .note-body th,
+  .note-body td {
+    border: 1px solid var(--color-rule);
+    padding: 0.5rem 0.75rem;
+    text-align: left;
+  }
+  .note-body th {
+    background: var(--color-paper);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .note-body img {
+    max-width: 100%;
+    height: auto;
+  }
+</style>

@@ -1,15 +1,180 @@
 ---
 import BaseLayout from "@/layouts/BaseLayout.astro"
+import { getCollection } from "astro:content"
+import { knowledgeAreas, matchAreas } from "@/data/knowledge"
+
+const all = (await getCollection("notes")).filter((n) => !n.data.draft)
+
+// 각 노트가 어느 지식 영역에 속하는지 빌드 시점에 계산해 data 속성으로 넘긴다.
+// 검색·필터는 라이브러리 없이 프리렌더 + 인라인 JS로 처리한다.
+const notes = all
+  .map((n) => ({
+    entry: n,
+    areas: matchAreas({ title: n.data.title, tags: n.data.tags }),
+  }))
+  .sort((a, b) => b.entry.data.pubDate.getTime() - a.entry.data.pubDate.getTime())
+
+// 노트가 하나라도 있는 영역만 필터 칩으로 보여준다
+const areaCounts = new Map<string, number>()
+for (const { areas } of notes) {
+  for (const a of areas) areaCounts.set(a.slug, (areaCounts.get(a.slug) ?? 0) + 1)
+}
+const activeAreas = knowledgeAreas.filter((a) => areaCounts.has(a.slug))
+
+const fmt = (d: Date) =>
+  `${d.getFullYear()}. ${String(d.getMonth() + 1).padStart(2, "0")}. ${String(d.getDate()).padStart(2, "0")}`
 ---
 
-<BaseLayout title="Notes" description="글, 메모, 에세이를 모읍니다." activeHref="/notes/">
+<BaseLayout
+  title="Notes"
+  description="사고의 흔적을 남기는 공간입니다."
+  activeHref="/notes/"
+>
   <div class="mx-auto max-w-4xl px-6 py-20 lg:px-16">
     <a href="/" class="text-sm text-gray-500 hover:underline">← 돌아가기</a>
-    <h1 class="mt-6 text-4xl font-bold tracking-tight">Notes</h1>
-    <p class="mt-2 text-gray-500">완성된 글보다 사고 과정을 남기는 공간입니다.</p>
 
-    <p class="mt-16 text-sm text-gray-400">
-      TODO(Phase 2) — notes 컬렉션, 검색 + 카테고리 필터 + 정렬 + 카드 그리드
+    <p class="mt-8 font-mono text-xs tracking-widest text-gray-400">NOTES</p>
+    <h1 class="mt-3 text-2xl font-semibold tracking-tight text-gray-900">Notes</h1>
+    <p class="mt-3 max-w-2xl leading-relaxed text-gray-600">
+      완성된 글보다 사고 과정을 남기는 공간입니다. Obsidian vault에서
+      공개 표시한 노트만 올라옵니다.
+    </p>
+
+    <!-- 검색 + 정렬 -->
+    <div class="mt-10 flex flex-col gap-3 sm:flex-row">
+      <input
+        id="note-search"
+        type="search"
+        placeholder="제목, 내용, 태그 검색"
+        class="flex-1 border-b border-rule bg-transparent py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-600 focus:outline-none"
+      />
+      <select
+        id="note-sort"
+        class="border-b border-rule bg-transparent py-2 text-sm text-gray-600 focus:border-brand-600 focus:outline-none"
+      >
+        <option value="new">최신순</option>
+        <option value="old">오래된순</option>
+      </select>
+    </div>
+
+    <!-- 지식 영역 필터 -->
+    <div class="mt-6 flex flex-wrap gap-x-5 gap-y-2">
+      <button
+        type="button"
+        data-area="all"
+        aria-pressed="true"
+        class="area-chip border-b-2 border-brand-600 pb-0.5 text-sm text-gray-900"
+      >
+        전체 <span class="font-mono text-xs text-gray-400">{notes.length}</span>
+      </button>
+      {
+        activeAreas.map((a) => (
+          <button
+            type="button"
+            data-area={a.slug}
+            aria-pressed="false"
+            class="area-chip border-b-2 border-transparent pb-0.5 text-sm text-gray-500 hover:text-gray-900"
+          >
+            {a.name}{" "}
+            <span class="font-mono text-xs text-gray-400">{areaCounts.get(a.slug)}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <p id="note-count" class="mt-8 text-sm text-gray-400">{notes.length}개의 노트</p>
+
+    <!-- 목록 -->
+    <ol id="note-list" class="mt-4 divide-y divide-rule border-t border-rule">
+      {
+        notes.map(({ entry, areas }) => (
+          <li
+            class="note-item py-6"
+            data-areas={areas.map((a) => a.slug).join(" ")}
+            data-date={entry.data.pubDate.getTime()}
+            data-text={`${entry.data.title} ${entry.data.description ?? ""} ${entry.data.tags.join(" ")}`.toLowerCase()}
+          >
+            <a href={`/notes/${entry.id}/`} class="group block">
+              <div class="flex flex-wrap items-baseline gap-x-3">
+                {areas.map((a) => (
+                  <span class="font-mono text-xs text-brand-600">{a.name}</span>
+                ))}
+                <time class="font-mono text-xs text-gray-400">
+                  {fmt(entry.data.pubDate)}
+                </time>
+              </div>
+              <h2 class="mt-1.5 font-semibold text-gray-900 group-hover:text-brand-600">
+                {entry.data.title}
+              </h2>
+              {entry.data.description && (
+                <p class="mt-1.5 line-clamp-2 text-sm leading-relaxed text-gray-500">
+                  {entry.data.description}
+                </p>
+              )}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+
+    <p id="note-empty" class="mt-10 hidden text-sm text-gray-400">
+      조건에 맞는 노트가 없습니다.
     </p>
   </div>
 </BaseLayout>
+
+<script>
+  const search = document.getElementById("note-search") as HTMLInputElement | null
+  const sort = document.getElementById("note-sort") as HTMLSelectElement | null
+  const list = document.getElementById("note-list")
+  const count = document.getElementById("note-count")
+  const empty = document.getElementById("note-empty")
+  const chips = Array.from(document.querySelectorAll<HTMLButtonElement>(".area-chip"))
+  const items = Array.from(document.querySelectorAll<HTMLElement>(".note-item"))
+
+  let area = "all"
+
+  function apply() {
+    const q = (search?.value ?? "").trim().toLowerCase()
+    let shown = 0
+
+    for (const el of items) {
+      const areas = (el.dataset.areas ?? "").split(" ")
+      const matchArea = area === "all" || areas.includes(area)
+      const matchText = q === "" || (el.dataset.text ?? "").includes(q)
+      const visible = matchArea && matchText
+      el.classList.toggle("hidden", !visible)
+      if (visible) shown++
+    }
+
+    if (count) count.textContent = `${shown}개의 노트`
+    empty?.classList.toggle("hidden", shown > 0)
+  }
+
+  function applySort() {
+    if (!list) return
+    const dir = sort?.value === "old" ? 1 : -1
+    const sorted = [...items].sort(
+      (a, b) => (Number(a.dataset.date) - Number(b.dataset.date)) * dir,
+    )
+    for (const el of sorted) list.appendChild(el)
+  }
+
+  search?.addEventListener("input", apply)
+  sort?.addEventListener("change", applySort)
+
+  for (const chip of chips) {
+    chip.addEventListener("click", () => {
+      area = chip.dataset.area ?? "all"
+      for (const c of chips) {
+        const on = c === chip
+        c.setAttribute("aria-pressed", String(on))
+        c.classList.toggle("border-brand-600", on)
+        c.classList.toggle("text-gray-900", on)
+        c.classList.toggle("border-transparent", !on)
+        c.classList.toggle("text-gray-500", !on)
+      }
+      apply()
+    })
+  }
+</script>

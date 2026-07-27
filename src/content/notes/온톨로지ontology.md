@@ -1,14 +1,12 @@
 ---
-type: know
-status: active
-created: 2026-04-03
-updated: 2026-04-03
+title: 온톨로지 (Ontology)
+description: '표준 표현 언어: OWL (Web Ontology Language), RDF/RDFS, SPARQL (쿼리)'
 tags:
 - domain/ai
+pubDate: '2026-04-03'
+source: 1. Memory/know/온톨로지(Ontology).md
+updatedDate: '2026-06-17'
 ---
-
-
-# 온톨로지 (Ontology)
 
 ## 1. 개념 정의
 
@@ -98,9 +96,10 @@ Obsidian 같은 PKM 도구에서 온톨로지적 사고를 적용하는 방법:
 
 ## 관련 노트
 
-- [온톨로지와 택소노미](/notes/온톨로지와-택소노미)
-- 팔란티어와 온톨로지
-- [조직지식관리 온톨로지 설계 예시](/notes/조직지식관리-온톨로지-설계-예시)
+- [온톨로지와 택소노미](/notes/온톨로지와-택소노미) — 온톨로지 vs 택소노미 개념 비교
+- 팔란티어와 온톨로지 — 기업 데이터 온톨로지의 대표 구현 사례
+- [조직지식관리 온톨로지 설계 예시](/notes/조직지식관리-온톨로지-설계-예시) — 중소 조직 지식관리에 온톨로지를 적용한 실전 설계
+- gbrain — Legion 볼트의 검색·합성 레이어 — 이 볼트에서 위키링크 그래프로 온톨로지적 PKM을 실천하는 도구
 
 ---
 

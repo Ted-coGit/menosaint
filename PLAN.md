@@ -201,8 +201,28 @@ heeho는 엔지니어 포트폴리오다. Ted의 정체성("조직과 사람, �
 ### Phase 1 — Astro 스캐폴드 + 원페이지 포트폴리오
 Astro v5 + Tailwind v4 초기화, `v5` 브랜치 생성, 좌측 사이드바 레이아웃, About/Knowledge/Now/Experience/Projects/Life 섹션, 통계 자동계산, CF Pages 프리뷰 빌드 확인.
 
-### Phase 2 — notes 컬렉션
-목록 페이지 (검색+카테고리 칩+정렬+카드 그리드), 상세 페이지, Expressive Code, sync.py 개조, 기존 노트 7개 마이그레이션, RSS·sitemap·OG.
+### Phase 2 — notes 컬렉션 (완료 2026-07-27)
+목록 페이지(검색 + 지식 영역 필터 + 정렬), 상세 페이지, sync.py 개조, 404 페이지.
+
+게이트는 vault의 기존 규약을 그대로 잇는다. `publish: true`인 노트만 나간다.
+opt-in이라 표시하지 않은 노트는 공개되지 않는다. 현재 6개.
+
+sync.py에서 바뀐 것
+
+- 출력 `content/` → `src/content/`
+- Legion frontmatter(type/status/created/updated/tags)를 Astro 스키마로 변환
+- 본문 첫 h1을 title로 승격하고 본문에서 제거
+- description이 없으면 첫 문단에서 뽑는다. 코드 펜스 안쪽은 건너뛴다
+  (mermaid 블록을 설명으로 잘못 집는 문제가 있었다)
+- status: archived → draft: true
+
+슬러그는 한글 그대로 둔다. v4 URL과 이어지고 영문 축은 미뤄둔 상태다.
+
+matchAreas에 제목 키워드 매칭을 추가했다. 온톨로지 노트 3개가 `domain/ai` 태그만
+달고 있어 태그만으로는 지식 구조 영역이 비어 버렸다. 태그 · 제목 접두사 ·
+제목 키워드 세 경로를 본다.
+
+남은 것: RSS, Expressive Code, 첨부 이미지 처리.
 
 ### Phase 3 — Knowledge ↔ 노트 태그 연동
 knowledge.ts 매칭 적용, 영역별 노트 개수 집계, Card+Detail 패널 컴포넌트화 후 Knowledge/Projects 양쪽 재사용.

@@ -1,18 +1,11 @@
 ---
-type: know
-status: active
-created: 2026-03-17
-updated: 2026-04-01
+title: agent - 에이전트의 자가 개선은 측정 가능한 피드백 루프가 있을 때만 성립한다
 tags:
 - domain/ai
-url: https://www.youtube.com/watch?v=4Cb_l2LJAW8
-aliases:
-- Claude Code와 Autoresearch를 결합하여 AI를 자가 개선하는 방법
-- autoresearch
+pubDate: '2026-03-17'
+source: 1. Memory/know/Agent - 에이전트의 자가 개선은 측정 가능한 피드백 루프가 있을 때만 성립한다.md
+updatedDate: '2026-04-01'
 ---
-
-
-# agent - 에이전트의 자가 개선은 측정 가능한 피드백 루프가 있을 때만 성립한다
 
 ## 출처
 

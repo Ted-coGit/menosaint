@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Legion AI Publish Sync Pipeline
+"""Legion AI Publish Sync Pipeline (Astro)
 
 Usage:
     python3 sync.py [--dry-run] [--vault VAULT_DIR] [--output OUTPUT_DIR]
 
 Defaults:
     vault:  /Users/ted/Obsidian/Legion
-    output: /Users/ted/Github/menosaint/content
+    output: /Users/ted/Github/menosaint/src/content
 """
 
 import argparse
@@ -21,7 +21,7 @@ from pathlib import Path
 import yaml
 
 VAULT_DEFAULT = "/Users/ted/Obsidian/Legion"
-OUTPUT_DEFAULT = "/Users/ted/Github/menosaint/content"
+OUTPUT_DEFAULT = "/Users/ted/Github/menosaint/src/content"
 MANIFEST_FILENAME = ".sync-manifest.json"
 
 EXCLUDED_PREFIXES = ("2. daily/", "0. inbox/")
@@ -164,6 +164,99 @@ def transform_links(body: str, publish_index: dict, source_path: Path, vault_dir
     return body, attachment_refs
 
 
+def extract_title(body: str, fallback: str) -> tuple[str, str]:
+    """본문 첫 h1을 제목으로 승격하고 본문에서 제거한다.
+
+    Legion 노트는 frontmatter에 title이 없고 본문 `# 제목`에 있다.
+    Astro 스키마는 title을 요구하므로 여기서 끌어올린다.
+    h1이 없으면 파일명을 쓴다.
+    """
+    lines = body.split("\n")
+    for i, line in enumerate(lines):
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if stripped.startswith("# "):
+            title = stripped[2:].strip()
+            del lines[i]
+            return title, "\n".join(lines).lstrip("\n")
+        # 첫 비어있지 않은 줄이 h1이 아니면 본문이 바로 시작한 것
+        break
+    return fallback, body
+
+
+def first_paragraph(body: str, limit: int = 160) -> str:
+    """설명이 없을 때 쓸 본문 첫 문단. 목록 카드에 노출된다.
+
+    코드 펜스 안쪽은 건너뛴다. mermaid 블록을 설명으로 잘못 집는 일이 있었다.
+    """
+    paragraph: list[str] = []
+    in_fence = False
+
+    for raw in body.split("\n"):
+        line = raw.strip()
+
+        if line.startswith("```") or line.startswith("~~~"):
+            in_fence = not in_fence
+            continue
+        if in_fence:
+            continue
+
+        # 문단이 모이는 중에 빈 줄을 만나면 거기서 끊는다
+        if not line:
+            if paragraph:
+                break
+            continue
+
+        # 산문이 아닌 줄은 건너뛴다
+        if line.startswith(("#", ">", "-", "*", "+", "|", "!", "<")):
+            if paragraph:
+                break
+            continue
+        if re.match(r"^\d+[.)]\s", line):
+            if paragraph:
+                break
+            continue
+
+        paragraph.append(line)
+
+    text = " ".join(" ".join(paragraph).split())
+    text = re.sub(r"[*_`\[\]]", "", text)
+    if len(text) > limit:
+        text = text[:limit].rstrip() + "…"
+    return text
+
+
+def to_astro_frontmatter(fm: dict, title: str, body: str, rel_source: str) -> dict:
+    """Legion frontmatter를 Astro 스키마로 옮긴다.
+
+    Legion   type / status / created / updated / tags
+    Astro    title / description / tags / pubDate / updatedDate / draft / source
+    """
+    created = fm.get("created")
+    updated = fm.get("updated")
+
+    out = {
+        "title": title,
+        "description": fm.get("description") or first_paragraph(body),
+        "tags": fm.get("tags") or [],
+        "pubDate": str(created) if created else "",
+        "source": rel_source,
+    }
+
+    if updated and str(updated) != str(created):
+        out["updatedDate"] = str(updated)
+
+    # vault에서 archived 처리된 노트는 초안으로 넘긴다
+    if fm.get("status") == "archived":
+        out["draft"] = True
+
+    # 빈 값은 넣지 않는다
+    return {k: v for k, v in out.items() if v not in ("", None, [])} | {
+        "tags": out["tags"]
+    }
+
+
 def transform_note(meta: dict, publish_index: dict, vault_dir: Path) -> tuple[str, dict]:
     note_path: Path = meta["path"]
     fm, body = parse_frontmatter(note_path)
@@ -171,7 +264,11 @@ def transform_note(meta: dict, publish_index: dict, vault_dir: Path) -> tuple[st
     fm.pop("publish", None)
 
     body, attachment_refs = transform_links(body, publish_index, note_path, vault_dir)
-    content = assemble_note(fm, body)
+    title, body = extract_title(body, note_path.stem)
+
+    rel_source = note_path.relative_to(vault_dir).as_posix()
+    astro_fm = to_astro_frontmatter(fm, title, body, rel_source)
+    content = assemble_note(astro_fm, body)
 
     return content, attachment_refs
 
@@ -279,7 +376,7 @@ def reconcile(
 def main():
     parser = argparse.ArgumentParser(description="Legion AI Publish Sync Pipeline")
     parser.add_argument("--vault", default=VAULT_DEFAULT, help="Obsidian vault directory")
-    parser.add_argument("--output", default=OUTPUT_DEFAULT, help="Quartz content directory")
+    parser.add_argument("--output", default=OUTPUT_DEFAULT, help="Astro content collections directory")
     parser.add_argument("--dry-run", action="store_true", help="Preview only, no file writes")
     args = parser.parse_args()
 
