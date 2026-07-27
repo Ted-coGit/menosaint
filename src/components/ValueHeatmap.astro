@@ -1,0 +1,130 @@
+---
+/**
+ * 지덕체부복 활동 히트맵.
+ *
+ * GitHub 기여 그래프와 같은 발상이되 행이 5개다. 각 행이 가치 축 하나고,
+ * 칸 하나가 한 주다. 진하기는 그 주의 체크인 수.
+ *
+ * 총계만 보여주는 방식과 다른 점은 시간축이 있다는 것이다.
+ * "지는 채웠는데 체는 석 달째 비었다"가 눈에 보인다.
+ * 빈 칸을 채우려 꾸미지 않는다. 비어 있는 것도 기록이다.
+ */
+import { values, habitMappings, type ValueKey } from "@/data/life-axes"
+import data from "@/data/habit-checkins.json"
+
+const WEEKS = 53
+const DAY_MS = 24 * 60 * 60 * 1000
+
+/** YYYYMMDD 정수를 Date로 */
+function fromStamp(stamp: number): Date {
+  const s = String(stamp)
+  return new Date(
+    Number(s.slice(0, 4)),
+    Number(s.slice(4, 6)) - 1,
+    Number(s.slice(6, 8)),
+  )
+}
+
+// 이번 주 월요일을 기준으로 53주 전까지
+const today = new Date()
+const thisMonday = new Date(today)
+thisMonday.setHours(0, 0, 0, 0)
+thisMonday.setDate(thisMonday.getDate() - ((thisMonday.getDay() + 6) % 7))
+const start = new Date(thisMonday.getTime() - (WEEKS - 1) * 7 * DAY_MS)
+
+const habitToValue = new Map<string, ValueKey>(
+  habitMappings.map((h) => [h.habitId, h.value]),
+)
+
+// counts[valueKey][weekIndex]
+const counts: Record<string, number[]> = Object.fromEntries(
+  values.map((v) => [v.key, new Array(WEEKS).fill(0)]),
+)
+
+for (const c of data.checkins) {
+  const value = habitToValue.get(c.habitId)
+  if (!value) continue
+  const week = Math.floor((fromStamp(c.stamp).getTime() - start.getTime()) / (7 * DAY_MS))
+  if (week < 0 || week >= WEEKS) continue
+  counts[value]![week]! += 1
+}
+
+/** 0~3 단계 */
+function level(n: number): number {
+  if (n === 0) return 0
+  if (n === 1) return 1
+  if (n <= 3) return 2
+  return 3
+}
+
+const LEVEL_CLASS = [
+  "bg-gray-100",
+  "bg-brand-200",
+  "bg-brand-400",
+  "bg-brand-600",
+] as const
+
+// 월 라벨 — 각 달이 시작하는 주에만 표시
+const monthLabels: { week: number; label: string }[] = []
+let lastMonth = -1
+for (let w = 0; w < WEEKS; w++) {
+  const d = new Date(start.getTime() + w * 7 * DAY_MS)
+  if (d.getMonth() === lastMonth) continue
+  lastMonth = d.getMonth()
+  // 앞 라벨과 3주 미만으로 붙으면 글자가 겹친다
+  const prev = monthLabels[monthLabels.length - 1]
+  if (prev && w - prev.week < 3) continue
+  monthLabels.push({ week: w, label: `${d.getMonth() + 1}월` })
+}
+
+const total = Object.values(counts).reduce(
+  (sum, row) => sum + row.reduce((a, b) => a + b, 0),
+  0,
+)
+---
+
+<div class="overflow-x-auto">
+  <div class="min-w-[680px]">
+    <!-- 월 라벨 -->
+    <div class="relative mb-1 ml-12 h-4">
+      {
+        monthLabels.map((m) => (
+          <span
+            class="absolute font-mono text-[10px] text-gray-400"
+            style={`left: ${m.week * 13}px`}
+          >
+            {m.label}
+          </span>
+        ))
+      }
+    </div>
+
+    <!-- 5행 히트맵 -->
+    <div class="flex flex-col gap-[3px]">
+      {
+        values.map((v) => (
+          <div class="flex items-center gap-[3px]">
+            <span class="w-12 shrink-0 text-xs text-gray-500">
+              {v.name}
+              <span class="ml-0.5 text-[10px] text-gray-300">{v.hanja}</span>
+            </span>
+            {counts[v.key]!.map((n, w) => (
+              <span
+                class={`h-2.5 w-2.5 rounded-[2px] ${LEVEL_CLASS[level(n)]}`}
+                title={`${v.name} · ${new Date(start.getTime() + w * 7 * DAY_MS).toLocaleDateString("ko-KR")} 주 · ${n}회`}
+              />
+            ))}
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- 범례 -->
+    <div class="mt-4 ml-12 flex items-center gap-2 text-[10px] text-gray-400">
+      <span>적음</span>
+      {LEVEL_CLASS.map((c) => <span class={`h-2.5 w-2.5 rounded-[2px] ${c}`} />)}
+      <span>많음</span>
+      <span class="ml-auto font-mono">최근 1년 {total}회</span>
+    </div>
+  </div>
+</div>

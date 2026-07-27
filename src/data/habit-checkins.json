@@ -1,0 +1,18 @@
+{
+  "_comment": "TickTick 습관 체크인 스냅샷. TickTick MCP(claude_ai_ticktick)의 get_habit_checkins로 갱신한다. mcp__ticktick__list_habits 쪽은 빈 배열을 돌려주므로 쓰지 않는다. 사후 보정은 TickTick에서 upsert_habit_checkins로 하고 여기를 다시 뽑는다.",
+  "generatedAt": "2026-07-27",
+  "range": { "from": 20250101, "to": 20260727 },
+  "checkins": [
+    { "habitId": "62d090834d8051d1fb6ba67c", "stamp": 20250203 },
+    { "habitId": "62d090834d8051d1fb6ba67c", "stamp": 20250412 },
+    { "habitId": "62d090834d8051d1fb6ba67c", "stamp": 20251108 },
+    { "habitId": "62d090834d8051d1fb6ba67c", "stamp": 20251123 },
+    { "habitId": "62d090834d8051d1fb6ba67c", "stamp": 20260411 },
+    { "habitId": "66ea9c596f86112ae65254e5", "stamp": 20250116 },
+    { "habitId": "66ea9c596f86112ae65254e5", "stamp": 20250514 },
+    { "habitId": "66ea9c596f86112ae65254e5", "stamp": 20250603 },
+    { "habitId": "66ea9c596f86112ae65254e5", "stamp": 20260412 },
+    { "habitId": "66ec18ff513411451004098e", "stamp": 20250413 },
+    { "habitId": "62fa4ee8373851da33c8e4fa", "stamp": 20250413 }
+  ]
+}
