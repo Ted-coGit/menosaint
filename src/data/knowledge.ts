@@ -112,7 +112,7 @@ export const knowledgeAreas: KnowledgeArea[] = [
     name: "인문",
     slug: "humanities",
     description: "기술보다 오래 남는 질문들.",
-    tags: ["인문"],
+    tags: ["domain/human", "인문"],
     titlePrefixes: ["인문 -"],
     topics: [
       "신뢰와 통제의 역설",

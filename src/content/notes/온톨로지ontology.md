@@ -1,6 +1,7 @@
 ---
 title: 온톨로지 (Ontology)
-description: '표준 표현 언어: OWL (Web Ontology Language), RDF/RDFS, SPARQL (쿼리)'
+description: 개념과 관계, 제약을 형식화해 기계와 사람이 함께 읽을 수 있게 만든 지식 모델. 철학 용어가 정보과학 용어로 옮겨온 경로와
+  구성 요소를 정리했다.
 tags:
 - domain/ai
 pubDate: '2026-04-03'
