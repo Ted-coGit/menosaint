@@ -185,60 +185,22 @@ def extract_title(body: str, fallback: str) -> tuple[str, str]:
     return fallback, body
 
 
-def first_paragraph(body: str, limit: int = 160) -> str:
-    """설명이 없을 때 쓸 본문 첫 문단. 목록 카드에 노출된다.
-
-    코드 펜스 안쪽은 건너뛴다. mermaid 블록을 설명으로 잘못 집는 일이 있었다.
-    """
-    paragraph: list[str] = []
-    in_fence = False
-
-    for raw in body.split("\n"):
-        line = raw.strip()
-
-        if line.startswith("```") or line.startswith("~~~"):
-            in_fence = not in_fence
-            continue
-        if in_fence:
-            continue
-
-        # 문단이 모이는 중에 빈 줄을 만나면 거기서 끊는다
-        if not line:
-            if paragraph:
-                break
-            continue
-
-        # 산문이 아닌 줄은 건너뛴다
-        if line.startswith(("#", ">", "-", "*", "+", "|", "!", "<")):
-            if paragraph:
-                break
-            continue
-        if re.match(r"^\d+[.)]\s", line):
-            if paragraph:
-                break
-            continue
-
-        paragraph.append(line)
-
-    text = " ".join(" ".join(paragraph).split())
-    text = re.sub(r"[*_`\[\]]", "", text)
-    if len(text) > limit:
-        text = text[:limit].rstrip() + "…"
-    return text
-
-
-def to_astro_frontmatter(fm: dict, title: str, body: str, rel_source: str) -> dict:
+def to_astro_frontmatter(fm: dict, title: str, rel_source: str) -> dict:
     """Legion frontmatter를 Astro 스키마로 옮긴다.
 
     Legion   type / status / created / updated / tags
     Astro    title / description / tags / pubDate / updatedDate / draft / source
+
+    description은 vault frontmatter에 적힌 것만 쓴다. 본문 첫 문단을 자동으로
+    집던 방식은 버렸다. 콜론으로 끝나거나 문장 중간에서 끊긴 조각이 목록에
+    그대로 나갔다. 목록에 노출될 문장은 원본에서 직접 쓴다.
     """
     created = fm.get("created")
     updated = fm.get("updated")
 
     out = {
         "title": title,
-        "description": fm.get("description") or first_paragraph(body),
+        "description": fm.get("description") or "",
         "tags": fm.get("tags") or [],
         "pubDate": str(created) if created else "",
         "source": rel_source,
@@ -267,7 +229,7 @@ def transform_note(meta: dict, publish_index: dict, vault_dir: Path) -> tuple[st
     title, body = extract_title(body, note_path.stem)
 
     rel_source = note_path.relative_to(vault_dir).as_posix()
-    astro_fm = to_astro_frontmatter(fm, title, body, rel_source)
+    astro_fm = to_astro_frontmatter(fm, title, rel_source)
     content = assemble_note(astro_fm, body)
 
     return content, attachment_refs

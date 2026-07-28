@@ -96,9 +96,11 @@ const fmt = (d: Date) =>
           >
             <a href={`/notes/${entry.id}/`} class="group block">
               <div class="flex flex-wrap items-baseline gap-x-3">
-                {areas.map((a) => (
-                  <span class="font-mono text-xs text-brand-600">{a.name}</span>
-                ))}
+                {areas.length > 0 && (
+                  <span class="font-mono text-xs text-brand-600">
+                    {areas.map((a) => a.name).join(" · ")}
+                  </span>
+                )}
                 <time class="font-mono text-xs text-gray-400">
                   {fmt(entry.data.pubDate)}
                 </time>

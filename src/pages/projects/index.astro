@@ -2,14 +2,18 @@
 import BaseLayout from "@/layouts/BaseLayout.astro"
 ---
 
-<BaseLayout title="Projects" description="작업한 프로젝트 목록입니다." activeHref="/projects/">
+<BaseLayout
+  title="Projects"
+  description="공개할 프로젝트를 고르는 중입니다."
+  activeHref="/projects/"
+>
   <div class="mx-auto max-w-4xl px-6 py-20 lg:px-16">
     <a href="/" class="text-sm text-gray-500 hover:underline">← 돌아가기</a>
-    <h1 class="mt-6 text-4xl font-bold tracking-tight">Projects</h1>
-    <p class="mt-2 text-gray-500">작업한 프로젝트 목록입니다.</p>
 
-    <p class="mt-16 text-sm text-gray-400">
-      TODO(Phase 1) — projects 컬렉션, 검색 + 필터 + 카드 그리드
+    <p class="mt-8 font-mono text-xs tracking-widest text-gray-400">PROJECTS</p>
+    <h1 class="mt-3 text-2xl font-semibold tracking-tight text-gray-900">Projects</h1>
+    <p class="mt-3 max-w-2xl leading-relaxed text-gray-600">
+      공개할 프로젝트를 고르는 중입니다. 정리되는 대로 여기에 올립니다.
     </p>
   </div>
 </BaseLayout>
