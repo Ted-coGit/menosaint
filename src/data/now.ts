@@ -23,7 +23,7 @@ export const now = {
     },
     {
       title: "올해의 두 가지",
-      detail: "2026년은 AI와 영어에 중점을 두기로 했다.",
+      detail: "2026년은 AI와 영어 공부에 중점을 두기로 했다.",
     },
   ],
 } as const
