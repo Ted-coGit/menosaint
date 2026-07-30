@@ -4,6 +4,10 @@
 레퍼런스: https://heeho.net/
 현재 상태: Quartz 4 (v4 브랜치, Cloudflare Pages, menosaint.xyz)
 
+읽는 순서 주의. 1~5절은 2026-07-25 설계 당시의 스냅샷이고, 그 뒤 7~9·11~12절이
+현재 유효한 결정이다. 둘이 어긋나는 곳에는 뒷절을 가리키는 표시를 달아뒀다.
+가장 크게 뒤집힌 것은 Life 섹션이다 (9절에서 철회).
+
 ---
 
 ## 0. 목표와 전제
@@ -13,7 +17,7 @@ heeho.net의 구조를 menosaint에 이식한다. 단순 테마 모방이 아니
 가져올 네 가지:
 1. 포트폴리오 원페이지 (좌측 고정 사이드바 + About / Experience / Projects / Certifications / Skills)
 2. 기술·사고 콘텐츠 목록·상세 (카테고리 필터 + 검색 + 정렬 + 카드 그리드)
-3. Life Map (경험을 두 축으로 기록하고 그래프로 시각화)
+3. Life Map (경험을 두 축으로 기록하고 그래프로 시각화) — 9절에서 철회. 집계 히트맵만 남겼다
 4. Knowledge ↔ 노트 태그 자동 연동 (7절에서 Skills → Knowledge로 수정)
 
 추가 요구: thread/blog 자동화 수익화 파이프라인을 나중에 붙일 수 있게 설계 여지를 남긴다 (Phase 5).
@@ -99,18 +103,21 @@ heeho는 `astro/` 서브폴더를 쓰지만 menosaint는 다른 앱이 없으므
 
 ### 3.2 디렉터리
 
+life 관련 항목은 9절에서 철회했다. 실제로 만들지 않았거나 만들었다가 되돌렸다.
+아래는 설계 당시 초안 그대로다.
+
 ```
 src/
   content/
     notes/<category>/<slug>.md      사고 기록 (Obsidian 동기화 대상)
     projects/<slug>.md              프로젝트
-    life/<thread>/<slug>.md         경험 기록
+    life/<thread>/<slug>.md         경험 기록          ← 철회 (9절)
     config.ts                       collection 스키마 정의
   data/
     experience.ts                   경력 타임라인 (통계 소스)
     certifications.ts               자격증
     knowledge.ts                    지식 영역 + 노트 태그 매핑
-    life-axes.ts                    열정·방식 축 정의
+    life-axes.ts                    열정·방식 축 정의   ← 철회. values.ts로 축소
   components/
     Sidebar.astro
     CardDetailPanel.astro           Knowledge/Projects/Life 재사용
@@ -121,17 +128,20 @@ src/
     index.astro                     원페이지 포트폴리오
     notes/index.astro  notes/[category]/[slug].astro
     projects/index.astro  projects/[slug].astro
-    life/index.astro   life/[thread]/[slug].astro
+    life/index.astro   life/[thread]/[slug].astro       ← 철회 (9절)
 scripts/
   sync.py                           Obsidian → src/content (기존 파일 개조)
 ```
+
+실제로 남은 것은 `src/data/values.ts`다. 지덕체부복 5축과 TickTick 습관 매핑만
+들어 있고, 분류 체계 전문은 vault 지식 노트에 있다.
 
 ### 3.3 Content Collections 스키마 (초안)
 
 ```
 notes:    title, description, category, tags[], pubDate, updatedDate, draft
 projects: title, description, org, period, stack[], featured, cover
-life:     title, description, passion, engagement, date, cover
+life:     title, description, passion, engagement, date, cover   ← 철회 (9절)
 ```
 
 `category`는 현재 Obsidian 노트의 파일명 접두사(지식 / AI / 인문)와 Quartz의 lab 폴더를 흡수한다. 즉 `lab`을 별도 컬렉션으로 두지 않고 `notes`의 category 하나로 합친다. 컬렉션이 늘수록 목록 UI를 중복 구현해야 해서다.
@@ -160,7 +170,11 @@ note fm:       tags: ['온톨로지', '지식구조']
 
 주의: Legion vault의 태그 체계가 아직 정착되지 않아 제목 접두사(`인문 - `, `Claude Code - `, `R1. `)가 실질적인 분류자다. 그래서 매칭을 태그와 제목 접두사 두 경로로 건다. 장기적으로는 태그로 수렴시키는 편이 낫다.
 
-### 3.6 Life Map
+### 3.6 Life Map (철회 — 9절 참조)
+
+아래는 설계 당시 구상이다. 축 모델은 9절에서 3축으로 확장됐다가 사이트에는
+집계 히트맵만 남기는 것으로 정리됐다. PixiJS도 d3-force도 쓰지 않았고 CSS
+그리드로 끝났다. 기록으로만 남긴다.
 
 heeho의 두 축 모델을 그대로 채택한다.
 - 열정 (무엇에 몰입하는가): 개별 대상
@@ -199,21 +213,23 @@ heeho의 두 축 모델을 그대로 채택한다.
 heeho는 엔지니어 포트폴리오다. Ted의 정체성("조직과 사람, 시스템과 흐름")은 결이 다르므로 섹션 이름과 축을 그대로 베끼면 안 맞을 수 있다. Phase 0에서 같이 정한다.
 
 ### Phase 1 — Astro 스캐폴드 + 원페이지 포트폴리오
-Astro v5 + Tailwind v4 초기화, `v5` 브랜치 생성, 좌측 사이드바 레이아웃, About/Knowledge/Now/Experience/Projects/Life 섹션, 통계 자동계산, CF Pages 프리뷰 빌드 확인.
+Astro v5 + Tailwind v4 초기화, `v5` 브랜치 생성, 좌측 사이드바 레이아웃, About/Knowledge/Now/Experience/Projects/Life 섹션, 통계 자동계산, CF Pages 프리뷰 빌드 확인. (Life 섹션은 이후 9절에서 철회)
 
 ### Phase 2 — notes 컬렉션 (완료 2026-07-27)
 목록 페이지(검색 + 지식 영역 필터 + 정렬), 상세 페이지, sync.py 개조, 404 페이지.
 
 게이트는 vault의 기존 규약을 그대로 잇는다. `publish: true`인 노트만 나간다.
-opt-in이라 표시하지 않은 노트는 공개되지 않는다. 현재 6개.
+opt-in이라 표시하지 않은 노트는 공개되지 않는다. 현재 4개 (07-28에 실명이 든
+온톨로지 노트 2개를 발행 취소해 6개에서 줄었다).
 
 sync.py에서 바뀐 것
 
 - 출력 `content/` → `src/content/`
 - Legion frontmatter(type/status/created/updated/tags)를 Astro 스키마로 변환
 - 본문 첫 h1을 title로 승격하고 본문에서 제거
-- description이 없으면 첫 문단에서 뽑는다. 코드 펜스 안쪽은 건너뛴다
-  (mermaid 블록을 설명으로 잘못 집는 문제가 있었다)
+- ~~description이 없으면 첫 문단에서 뽑는다~~ — 07-28에 `first_paragraph()`를
+  제거했다. 자동 추출은 콜론으로 끝나거나 문장 중간에서 끊겼다. 이제 vault
+  frontmatter의 `description`만 쓰고, 없으면 비운다
 - status: archived → draft: true
 
 슬러그는 한글 그대로 둔다. v4 URL과 이어지고 영문 축은 미뤄둔 상태다.
@@ -227,8 +243,11 @@ matchAreas에 제목 키워드 매칭을 추가했다. 온톨로지 노트 3개�
 ### Phase 3 — Knowledge ↔ 노트 태그 연동
 knowledge.ts 매칭 적용, 영역별 노트 개수 집계, Card+Detail 패널 컴포넌트화 후 Knowledge/Projects 양쪽 재사용.
 
-### Phase 4 — Life Map
+### Phase 4 — Life Map (철회 — 9절 참조)
 life 컬렉션, 두 축 정의, 그래프·타임라인·목록 3뷰, 렌더링 라이브러리 결정.
+
+이 Phase는 실행하지 않는다. 만들었다가 되돌렸고(커밋 `f47351f`, `d4ab43a`),
+남은 것은 Now 아래의 집계 히트맵뿐이다. 서술형 기록은 네이버 블로그로 간다.
 
 ### Phase 5 — 배포 전환 + 수익화 파이프라인 설계
 CF Pages 프로덕션 브랜치를 v5로 전환. 이후 thread/blog 자동화 파이프라인 설계 착수.
@@ -266,7 +285,7 @@ heeho.net은 개발자가 본인을 홍보하는 구직용 포트폴리오다. m
   도구·환경 / 인문).
   Notes, Projects, Life, Now가 그 뒤를 받친다.
 
-사이드바 구성:
+사이드바 구성 (Life 항목은 9절에서 철회. 현재 구조는 그 아래에 적었다):
 
 ```
 About
@@ -276,8 +295,20 @@ Now
 Experience      추상화
 Projects
   ㄴ 프로젝트 전체 → /projects/
-Life
-  ㄴ Life Map   → /life/
+Life                          ← 철회 (9절)
+  ㄴ Life Map   → /life/      ← 철회 (9절)
+```
+
+현재 구현된 구성:
+
+```
+About
+Knowledge
+  ㄴ 노트 전체   → /notes/
+Now             + 활동 히트맵
+Experience
+Projects
+  ㄴ 프로젝트 전체 → /projects/
 ```
 
 ### Phase 0 데이터 출처
@@ -400,7 +431,11 @@ Now가 의도를 문장으로 답한다면 잔디는 실제를 데이터로 답�
 현재 습관은 지·덕·체만 덮고 부·복은 빈 줄로 남는다. 꾸미지 않는다.
 `getUncoveredValues()`가 이걸 계산해 페이지에 그대로 표시한다.
 
-### Life에 무엇을 넣는가
+### Life에 무엇을 넣는가 (menosaint가 아니라 네이버 블로그)
+
+아래 후보와 스키마는 Life 섹션 철회 전에 정리한 것이다. 콘텐츠 후보 목록은
+네이버 블로그의 소재로 여전히 쓸모가 있어 남긴다. 다만 menosaint에 컬렉션으로
+들어가지는 않는다.
 
 잔디는 습관 체크이고, 기록은 서술형이다. 후자가 무엇인지 헷갈려서 비어 있었다.
 
@@ -423,6 +458,12 @@ Knowledge는 sync로 자동화해도 되지만 Life는 daily에서 건져 올려
 
 스키마는 작게 시작한다. `title / date / passion / value / engagements[] / visibility`.
 씨앗이 두세 개뿐이라 크게 짜면 헛돈다. 열 개쯤 쌓인 뒤 실제 패턴을 보고 늘린다.
+(이 스키마는 구현하지 않았다. Life 컬렉션 자체를 두지 않기로 했다.)
+
+## 10. (결번)
+
+절 번호가 9에서 11로 건너뛴다. 10절은 처음부터 없었다. 뒷 절 번호를 당기지 않는
+이유는 `HANDOVER.md`가 `PLAN 11`, `PLAN 12.2` 형태로 여러 곳에서 참조하고 있어서다.
 
 ## 11. 프로덕션 전환 절차 (2026-07-27)
 
@@ -489,11 +530,15 @@ know 폴더에 `연봉 삭감`, `경영성과급 설계`, `R1. 시장조사 소�
 - README 페이지 — Obsidian 파일 기반. 공개 사이트와 같은 파이프라인을 쓰되
   발행 게이트만 다르게 건다
 
-### 12.4 웹페이지 세부 정리
+### 12.4 웹페이지 세부 정리 (대체로 완료 2026-07-28)
 
 - 섹션 내 항목 정렬 순서 재검토
 - 불필요한 요소 제거
 - 임시로 넣어둔 안내 문구 정리
+
+껍데기를 먼저 확정하고 글은 나중에 채운다는 순서로 12.5보다 먼저 했다.
+경력 연차 통계 블록 제거, Projects의 TODO 문구 교체, 노트 목록 영역 라벨
+구분자, 히트맵 안내 축소 등. 상세는 `HANDOVER.md`의 07-28 항목에 있다.
 
 ### 12.5 설명 문구 재작성
 
@@ -516,7 +561,10 @@ know 폴더에 `연봉 삭감`, `경영성과급 설계`, `R1. 시장조사 소�
 1. 한글 슬러그 대신 영문 슬러그 채택 여부
 2. 기존 URL(`/notes/...`, `/lab/...`) 보존 여부. 안 하면 리다이렉트 불필요
 3. 댓글 giscus 도입 여부
-4. Life Map 두 축의 대비쌍 정의 — heeho의 4쌍을 그대로 쓸지 재정의할지
+4. ~~Life Map 두 축의 대비쌍 정의~~ — 닫힘. 9절에서 3축으로 재정의했고
+   방식 4쌍은 익히다↔만들다 / 파고들다↔넓히다 / 혼자하다↔함께하다 / 쌓다↔비우다
 5. 방문자 카운터 — heeho는 자체 API를 쓴다. menosaint는 Plausible을 쓰고 있으므로 별도 백엔드 없이 갈지 결정
-6. Life 기록 중 종교(가톨릭)를 어느 축에 둘지, 공개할지
-7. 몸의 기록 공개 범위 — daily에 병원명·진료비가 섞여 있어 그대로 올릴 수 없다
+6. ~~Life 기록 중 종교(가톨릭)를 어느 축에 둘지, 공개할지~~ — menosaint의 결정이
+   아니게 됐다. 네이버 블로그에 무엇을 쓸지의 문제로 넘어갔다
+7. ~~몸의 기록 공개 범위~~ — 같은 이유로 이 문서의 결정 사항이 아니다.
+   daily 자동 동기화 금지 원칙은 9절과 sync 게이트에 그대로 남아 있다
