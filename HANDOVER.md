@@ -120,6 +120,7 @@
 
 3. **now.md, about.md 콘텐츠 업데이트** — 더미 상태
 4. **menosaint.xyz 홈 개선** — Recent Notes 섹션, 브랜딩 개성
+   - 지향 레퍼런스: https://daleseo.com/ (2026-11-01 Ted가 "바랐던 menosaint 모습에 가깝다"고 메모). 어떤 요소가 마음에 들었는지는 아직 기록하지 않음
 5. **Google OAuth 연결 (선택)** — Zero Trust → Settings → Authentication
 
 ---
